@@ -1,17 +1,15 @@
 const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
+const COMPASS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+  "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
 
-function periodColor(tp) {
-  // Escala de cor por periodo (s), estilo Surfguru: curto=azul/verde, longo=laranja/vermelho/magenta
-  const stops = [
-    [2, "#2e6de0"], [6, "#22c1a6"], [9, "#4fd15a"], [12, "#e8d23a"],
-    [15, "#f0922f"], [18, "#e8452f"], [21, "#c93fd6"],
-  ];
-  const t = Math.max(stops[0][0], Math.min(tp, stops[stops.length - 1][0]));
-  for (let i = 0; i < stops.length - 1; i++) {
-    const [v0, c0] = stops[i], [v1, c1] = stops[i + 1];
-    if (t >= v0 && t <= v1) return lerpColor(c0, c1, (t - v0) / (v1 - v0));
-  }
-  return stops[stops.length - 1][1];
+function degToCompass(deg) {
+  const i = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
+  return COMPASS[i];
+}
+
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
 function lerpColor(a, b, f) {
@@ -22,21 +20,37 @@ function lerpColor(a, b, f) {
   return `rgb(${r},${g},${bl})`;
 }
 
-function hexToRgb(hex) {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-function windColor(speedMs) {
-  const kt = speedMs * 1.94384;
-  const stops = [[0, "#3aa0d1"], [10, "#3ad17a"], [18, "#e8d23a"], [28, "#e8452f"]];
-  const t = Math.max(0, Math.min(kt, stops[stops.length - 1][0]));
+function scaleColor(value, stops) {
+  const t = Math.max(stops[0][0], Math.min(value, stops[stops.length - 1][0]));
   for (let i = 0; i < stops.length - 1; i++) {
     const [v0, c0] = stops[i], [v1, c1] = stops[i + 1];
     if (t >= v0 && t <= v1) return lerpColor(c0, c1, (t - v0) / (v1 - v0));
   }
   return stops[stops.length - 1][1];
 }
+
+// Escala calibrada para o periodo tipico de PE (~5-15s), nao a faixa
+// global (2-21s) -- assim a variacao real do dia a dia aparece no grafico.
+const PERIOD_STOPS = [
+  [5, "#2e6de0"], [6, "#22c1a6"], [7, "#4fd15a"], [8, "#a8d13a"],
+  [9, "#e8d23a"], [10, "#f0922f"], [12, "#e8452f"], [15, "#c93fd6"],
+];
+const periodColor = (tp) => scaleColor(tp, PERIOD_STOPS);
+
+const WIND_STOPS = [[0, "#3aa0d1"], [10, "#3ad17a"], [18, "#e8d23a"], [28, "#e8452f"]];
+const windColor = (speedMs) => scaleColor(speedMs * 1.94384, WIND_STOPS);
+
+const ENERGY_STOPS = [
+  [500, "#2e6de0"], [1000, "#22c1a6"], [1500, "#4fd15a"], [2000, "#a8d13a"],
+  [2500, "#e8d23a"], [3500, "#f0922f"], [5000, "#e8452f"], [8000, "#c93fd6"],
+];
+const energyColor = (j) => scaleColor(j, ENERGY_STOPS);
+
+const POWER_STOPS = [
+  [3, "#2e6de0"], [6, "#22c1a6"], [9, "#4fd15a"], [12, "#a8d13a"],
+  [15, "#e8d23a"], [20, "#f0922f"], [30, "#e8452f"], [45, "#c93fd6"],
+];
+const powerColor = (kw) => scaleColor(kw, POWER_STOPS);
 
 function fmtHour(iso) {
   const d = new Date(iso);
@@ -56,7 +70,6 @@ function buildDayLabels(forecast) {
   const row = document.createElement("div");
   row.className = "day-labels";
   let lastDay = null;
-  let count = 0;
   const groups = [];
   for (const f of forecast) {
     const dk = dayKey(f.valid_time);
@@ -76,6 +89,13 @@ function buildDayLabels(forecast) {
   return row;
 }
 
+function addDirLabel(col, deg) {
+  const dir = document.createElement("div");
+  dir.className = "dir-label";
+  dir.textContent = degToCompass(deg);
+  col.appendChild(dir);
+}
+
 function buildWaveChart(forecast) {
   const chart = document.createElement("div");
   chart.className = "chart";
@@ -93,7 +113,7 @@ function buildWaveChart(forecast) {
     bar.className = "bar";
     bar.style.height = `${(f.hs_m / maxHs) * 100}%`;
     bar.style.background = periodColor(f.tp_s);
-    bar.title = `Hs ${f.hs_m} m | Tp ${f.tp_s} s | dir ${f.dir_deg}°`;
+    bar.title = `Hs ${f.hs_m} m | Tp ${f.tp_s} s | dir ${f.dir_deg}° (${degToCompass(f.dir_deg)})`;
     track.appendChild(bar);
     col.appendChild(track);
 
@@ -107,6 +127,8 @@ function buildWaveChart(forecast) {
     arrow.style.transform = `rotate(${f.dir_deg + 180}deg)`;
     arrow.textContent = "↑";
     col.appendChild(arrow);
+
+    addDirLabel(col, f.dir_deg);
 
     const time = document.createElement("div");
     time.className = "time-label";
@@ -136,7 +158,7 @@ function buildWindChart(forecast) {
     bar.style.height = `${(f.wind_speed_ms / maxWs) * 100}%`;
     bar.style.background = windColor(f.wind_speed_ms);
     const kt = (f.wind_speed_ms * 1.94384).toFixed(0);
-    bar.title = `${kt} kt | dir ${f.wind_dir_deg}°`;
+    bar.title = `${kt} kt | dir ${f.wind_dir_deg}° (${degToCompass(f.wind_dir_deg)})`;
     track.appendChild(bar);
     col.appendChild(track);
 
@@ -150,6 +172,8 @@ function buildWindChart(forecast) {
     arrow.style.transform = `rotate(${f.wind_dir_deg + 180}deg)`;
     arrow.textContent = "↑";
     col.appendChild(arrow);
+
+    addDirLabel(col, f.wind_dir_deg);
 
     const time = document.createElement("div");
     time.className = "time-label";
@@ -177,7 +201,7 @@ function buildPowerChart(forecast) {
     const bar = document.createElement("div");
     bar.className = "bar";
     bar.style.height = `${(f.power_kw_m / maxP) * 100}%`;
-    bar.style.background = "#4fc3e0";
+    bar.style.background = powerColor(f.power_kw_m);
     bar.title = `${f.power_kw_m} kW/m`;
     track.appendChild(bar);
     col.appendChild(track);
@@ -214,7 +238,7 @@ function buildEnergyChart(forecast) {
     const bar = document.createElement("div");
     bar.className = "bar";
     bar.style.height = `${(f.energy_j_m2 / maxE) * 100}%`;
-    bar.style.background = "#8b6fe0";
+    bar.style.background = energyColor(f.energy_j_m2);
     bar.title = `${f.energy_j_m2} J/m²`;
     track.appendChild(bar);
     col.appendChild(track);
@@ -292,7 +316,7 @@ function buildLegend() {
   const label = document.createElement("span");
   label.textContent = "Período (s):";
   wrap.appendChild(label);
-  const bands = [3, 6, 9, 12, 15, 18, 21];
+  const bands = [5, 6, 7, 8, 9, 10, 12, 15];
   for (const s of bands) {
     const item = document.createElement("span");
     item.className = "legend-item";
@@ -332,42 +356,10 @@ async function main() {
   const defaultPlaceId = "ipojuca_suape";
   if (data.places[defaultPlaceId]) select.value = defaultPlaceId;
 
-  const map = L.map("map", { scrollWheelZoom: false }).setView([-8.3, -34.9], 9);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap",
-    maxZoom: 13,
-  }).addTo(map);
-
-  const markers = {};
-  for (const [id, place] of Object.entries(data.places)) {
-    const marker = L.circleMarker([place.lat, place.lon], {
-      radius: 7,
-      color: "#4fc3e0",
-      weight: 2,
-      fillColor: "#0b1e2d",
-      fillOpacity: 0.8,
-    }).addTo(map);
-    marker.bindTooltip(place.label, { direction: "top" });
-    marker.on("click", () => {
-      select.value = id;
-      render(id);
-    });
-    markers[id] = marker;
-  }
-
-  function highlightMarker(placeId) {
-    for (const [id, marker] of Object.entries(markers)) {
-      marker.setStyle(id === placeId
-        ? { color: "#8b6fe0", fillColor: "#8b6fe0", radius: 9 }
-        : { color: "#4fc3e0", fillColor: "#0b1e2d", radius: 7 });
-    }
-  }
-
   function render(placeId) {
     const place = data.places[placeId];
     const gp = data.grid_points[place.grid_point];
     const forecast = gp.forecast;
-    highlightMarker(placeId);
 
     const waveDayLabels = document.getElementById("wave-day-labels");
     const waveChartHost = document.getElementById("wave-chart");
@@ -392,7 +384,12 @@ async function main() {
     tideTableHost.innerHTML = "";
     tideTableHost.appendChild(buildTideTable(gp.tide_extrema));
     document.getElementById("tide-note").textContent =
-      "Marés altas (▲) e baixas (▼) da Tábua de Maré DHN, horário de Brasília, estação de referência mais próxima.";
+      "Marés altas (▲) e baixas (▼), horário de Brasília.";
+
+    const st = gp.tide_station;
+    document.getElementById("tide-panel-title").textContent = st
+      ? `Tábua de maré (Ref.: ${st.name}, ${st.lon.toFixed(2)} ${st.lat.toFixed(2)})`
+      : "Tábua de maré";
 
     document.getElementById("grid-info").textContent =
       `Ponto de grade mais próximo: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)`;

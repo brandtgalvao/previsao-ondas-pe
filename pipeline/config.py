@@ -49,6 +49,11 @@ WIND_PARAMS = ["10u", "10v"]
 # Estacao de mare (DHN) de referencia para cada ponto de grade.
 # Recife (08 03.4S) cobre o litoral norte/central; Suape (08 23.6S) cobre
 # do Cabo de Santo Agostinho para o sul, por ser geograficamente mais perto.
+TIDE_STATIONS_INFO = {
+    "recife": {"name": "Porto de Recife", "lat": -8.06, "lon": -34.87},
+    "suape": {"name": "Porto de Suape", "lat": -8.39, "lon": -34.96},
+}
+
 TIDE_STATION = {
     "gp_goiana": "recife",
     "gp_itamaraca": "recife",

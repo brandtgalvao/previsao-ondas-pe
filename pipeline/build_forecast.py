@@ -12,7 +12,7 @@ import xarray as xr
 warnings.filterwarnings("ignore", category=FutureWarning, module="cfgrib")
 
 sys.path.insert(0, os.path.dirname(__file__))
-from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION  # noqa: E402
+from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION, TIDE_STATIONS_INFO  # noqa: E402
 from fetch_ecmwf import fetch_wave, fetch_wind  # noqa: E402
 from compute import wind_speed_dir, wave_power_kw_m, wave_energy_j_m2  # noqa: E402
 from tide import TideTable, ensure_cache  # noqa: E402
@@ -122,11 +122,13 @@ def build(max_hours: int):
             end_utc = valid_times[-1].astype("datetime64[s]").astype(datetime).replace(tzinfo=timezone.utc)
             tide_extrema = tide_table.extrema_local_between(start_utc, end_utc)
 
+        station_id = TIDE_STATION.get(point_id)
         points_out[point_id] = {
             "grid_lat": lat,
             "grid_lon": lon,
             "forecast": forecast,
             "tide_extrema": tide_extrema,
+            "tide_station": TIDE_STATIONS_INFO.get(station_id),
         }
 
     output = {
