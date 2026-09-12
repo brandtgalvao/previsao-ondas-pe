@@ -96,10 +96,13 @@ function addDirLabel(col, deg) {
   col.appendChild(dir);
 }
 
-function buildWaveChart(forecast) {
+function buildWaveChart(forecast, mode = "combined") {
   const chart = document.createElement("div");
   chart.className = "chart";
+
   const maxHs = Math.max(2, ...forecast.map((f) => f.hs_m)) * 1.15;
+  const maxTp = Math.max(8, ...forecast.map((f) => f.tp_s)) * 1.15;
+
   let lastDay = null;
   for (const f of forecast) {
     const col = document.createElement("div");
@@ -109,26 +112,43 @@ function buildWaveChart(forecast) {
 
     const track = document.createElement("div");
     track.className = "bar-track";
-    const bar = document.createElement("div");
-    bar.className = "bar";
-    bar.style.height = `${(f.hs_m / maxHs) * 100}%`;
-    bar.style.background = periodColor(f.tp_s);
-    bar.title = `Hs ${f.hs_m} m | Tp ${f.tp_s} s | dir ${f.dir_deg}° (${degToCompass(f.dir_deg)})`;
-    track.appendChild(bar);
+
+    if (mode !== "direction") {
+      const bar = document.createElement("div");
+      bar.className = "bar";
+      if (mode === "period") {
+        bar.style.height = `${(f.tp_s / maxTp) * 100}%`;
+        bar.style.background = periodColor(f.tp_s);
+        bar.title = `Tp ${f.tp_s} s`;
+      } else if (mode === "height") {
+        bar.style.height = `${(f.hs_m / maxHs) * 100}%`;
+        bar.style.background = "var(--accent)";
+        bar.title = `Hs ${f.hs_m} m`;
+      } else {
+        bar.style.height = `${(f.hs_m / maxHs) * 100}%`;
+        bar.style.background = periodColor(f.tp_s);
+        bar.title = `Hs ${f.hs_m} m | Tp ${f.tp_s} s | dir ${f.dir_deg}° (${degToCompass(f.dir_deg)})`;
+      }
+      track.appendChild(bar);
+    }
     col.appendChild(track);
 
-    const val = document.createElement("div");
-    val.className = "value-label";
-    val.textContent = f.hs_m.toFixed(1);
-    col.appendChild(val);
+    if (mode !== "direction") {
+      const val = document.createElement("div");
+      val.className = "value-label";
+      val.textContent = mode === "period" ? f.tp_s.toFixed(1) : f.hs_m.toFixed(1);
+      col.appendChild(val);
+    }
 
-    const arrow = document.createElement("div");
-    arrow.className = "arrow";
-    arrow.style.transform = `rotate(${f.dir_deg + 180}deg)`;
-    arrow.textContent = "↑";
-    col.appendChild(arrow);
-
-    addDirLabel(col, f.dir_deg);
+    if (mode === "combined" || mode === "direction") {
+      const arrow = document.createElement("div");
+      arrow.className = "arrow";
+      arrow.style.transform = `rotate(${f.dir_deg + 180}deg)`;
+      arrow.style.fontSize = mode === "direction" ? "1.4rem" : "0.85rem";
+      arrow.textContent = "↑";
+      col.appendChild(arrow);
+      addDirLabel(col, f.dir_deg);
+    }
 
     const time = document.createElement("div");
     time.className = "time-label";
@@ -330,6 +350,8 @@ function buildLegend() {
   return wrap;
 }
 
+let currentWaveMode = "combined";
+
 async function main() {
   const root = document.getElementById("app");
   let data;
@@ -366,7 +388,7 @@ async function main() {
     waveDayLabels.innerHTML = "";
     waveChartHost.innerHTML = "";
     waveDayLabels.appendChild(buildDayLabels(forecast));
-    waveChartHost.appendChild(buildWaveChart(forecast));
+    waveChartHost.appendChild(buildWaveChart(forecast, currentWaveMode));
 
     const windChartHost = document.getElementById("wind-chart");
     windChartHost.innerHTML = "";
@@ -397,6 +419,16 @@ async function main() {
 
   select.addEventListener("change", () => render(select.value));
   document.getElementById("legend-host").appendChild(buildLegend());
+
+  document.querySelectorAll("#wave-tabs .tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#wave-tabs .tab-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentWaveMode = btn.dataset.mode;
+      render(select.value);
+    });
+  });
+
   render(select.value);
 }
 
