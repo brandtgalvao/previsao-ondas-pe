@@ -17,20 +17,22 @@ GRID_POINTS = {
     "gp_sao_jose": {"lat": -9.00, "lon": -35.00},
 }
 
-# Nome de exibicao (praia/municipio) -> grid point que o representa
+# Nome de exibicao (praia/municipio) -> grid point que o representa.
+# lat/lon aqui sao a posicao real da cidade/praia (para o mapa), nao a
+# celula de grade do modelo (essa fica em GRID_POINTS).
 PLACES = {
-    "goiana": {"label": "Goiana", "grid_point": "gp_goiana"},
-    "itamaraca": {"label": "Ilha de Itamaracá", "grid_point": "gp_itamaraca"},
-    "paulista": {"label": "Paulista", "grid_point": "gp_recife_norte"},
-    "olinda": {"label": "Olinda", "grid_point": "gp_recife_norte"},
-    "recife_boa_viagem": {"label": "Recife", "grid_point": "gp_recife_norte"},
-    "jaboatao": {"label": "Jaboatão dos Guararapes", "grid_point": "gp_jaboatao_cabo"},
-    "cabo_santo_agostinho": {"label": "Cabo de Santo Agostinho", "grid_point": "gp_jaboatao_cabo"},
-    "ipojuca_suape": {"label": "Ipojuca", "grid_point": "gp_b2_ipojuca_suape"},
-    "sirinhaem": {"label": "Sirinhaém", "grid_point": "gp_sirinhaem"},
-    "tamandare": {"label": "Tamandaré", "grid_point": "gp_tamandare_barreiros"},
-    "barreiros": {"label": "Barreiros", "grid_point": "gp_tamandare_barreiros"},
-    "sao_jose_coroa_grande": {"label": "São José da Coroa Grande", "grid_point": "gp_sao_jose"},
+    "goiana": {"label": "Goiana", "grid_point": "gp_goiana", "lat": -7.55, "lon": -34.83},
+    "itamaraca": {"label": "Ilha de Itamaracá", "grid_point": "gp_itamaraca", "lat": -7.75, "lon": -34.82},
+    "paulista": {"label": "Paulista", "grid_point": "gp_recife_norte", "lat": -7.91, "lon": -34.84},
+    "olinda": {"label": "Olinda", "grid_point": "gp_recife_norte", "lat": -7.99, "lon": -34.84},
+    "recife_boa_viagem": {"label": "Recife", "grid_point": "gp_recife_norte", "lat": -8.12, "lon": -34.87},
+    "jaboatao": {"label": "Jaboatão dos Guararapes", "grid_point": "gp_jaboatao_cabo", "lat": -8.19, "lon": -34.92},
+    "cabo_santo_agostinho": {"label": "Cabo de Santo Agostinho", "grid_point": "gp_jaboatao_cabo", "lat": -8.29, "lon": -34.95},
+    "ipojuca_suape": {"label": "Ipojuca", "grid_point": "gp_b2_ipojuca_suape", "lat": -8.395, "lon": -34.9367},
+    "sirinhaem": {"label": "Sirinhaém", "grid_point": "gp_sirinhaem", "lat": -8.59, "lon": -35.05},
+    "tamandare": {"label": "Tamandaré", "grid_point": "gp_tamandare_barreiros", "lat": -8.76, "lon": -35.10},
+    "barreiros": {"label": "Barreiros", "grid_point": "gp_tamandare_barreiros", "lat": -8.82, "lon": -35.13},
+    "sao_jose_coroa_grande": {"label": "São José da Coroa Grande", "grid_point": "gp_sao_jose", "lat": -8.897, "lon": -35.15},
 }
 
 # Pontos cientificos da tese, para referencia/citacao no site (nao usados

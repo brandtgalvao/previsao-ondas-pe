@@ -325,16 +325,49 @@ async function main() {
   select.innerHTML = "";
   for (const [id, place] of Object.entries(data.places)) {
     const opt = document.createElement("option");
-    opt.value = place.grid_point;
+    opt.value = id;
     opt.textContent = place.label;
     select.appendChild(opt);
   }
-  const defaultGridPoint = "gp_b2_ipojuca_suape";
-  if (data.grid_points[defaultGridPoint]) select.value = defaultGridPoint;
+  const defaultPlaceId = "ipojuca_suape";
+  if (data.places[defaultPlaceId]) select.value = defaultPlaceId;
 
-  function render(gridPointId) {
-    const gp = data.grid_points[gridPointId];
+  const map = L.map("map", { scrollWheelZoom: false }).setView([-8.3, -34.9], 9);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap",
+    maxZoom: 13,
+  }).addTo(map);
+
+  const markers = {};
+  for (const [id, place] of Object.entries(data.places)) {
+    const marker = L.circleMarker([place.lat, place.lon], {
+      radius: 7,
+      color: "#4fc3e0",
+      weight: 2,
+      fillColor: "#0b1e2d",
+      fillOpacity: 0.8,
+    }).addTo(map);
+    marker.bindTooltip(place.label, { direction: "top" });
+    marker.on("click", () => {
+      select.value = id;
+      render(id);
+    });
+    markers[id] = marker;
+  }
+
+  function highlightMarker(placeId) {
+    for (const [id, marker] of Object.entries(markers)) {
+      marker.setStyle(id === placeId
+        ? { color: "#8b6fe0", fillColor: "#8b6fe0", radius: 9 }
+        : { color: "#4fc3e0", fillColor: "#0b1e2d", radius: 7 });
+    }
+  }
+
+  function render(placeId) {
+    const place = data.places[placeId];
+    const gp = data.grid_points[place.grid_point];
     const forecast = gp.forecast;
+    highlightMarker(placeId);
 
     const waveDayLabels = document.getElementById("wave-day-labels");
     const waveChartHost = document.getElementById("wave-chart");
@@ -362,7 +395,7 @@ async function main() {
       "Marés altas (▲) e baixas (▼) da Tábua de Maré DHN, horário de Brasília, estação de referência mais próxima.";
 
     document.getElementById("grid-info").textContent =
-      `Ponto de grade: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)`;
+      `Ponto de grade mais próximo: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)`;
   }
 
   select.addEventListener("change", () => render(select.value));

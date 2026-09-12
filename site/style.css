@@ -213,9 +213,12 @@ footer summary {
 }
 
 .tide-table {
-  width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
+}
+
+.tide-table th, .tide-table td {
+  min-width: 130px;
 }
 
 .tide-table th {
@@ -236,4 +239,40 @@ footer summary {
 
 .tide-icon {
   color: var(--accent);
+}
+
+.map-panel {
+  margin: 0 24px 20px;
+  overflow: hidden;
+}
+
+#map {
+  height: 280px;
+  width: 100%;
+  background: var(--bg-panel-alt);
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--bg-panel);
+  color: var(--text);
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--text-dim);
+}
+
+.place-marker.active {
+  filter: hue-rotate(90deg);
+}
+
+.credit {
+  margin: 12px 0 0;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+header h1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Previsão de Ondas — Pernambuco</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%8A%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1>Previsão de Ondas — Litoral de Pernambuco</h1>
+  <h1>🌊 Previsão de Ondas — Litoral de Pernambuco</h1>
   <p>Piloto de pesquisa acadêmica · dados ECMWF Open Data (HRES / IFS-WAM)</p>
 </header>
 
@@ -17,6 +19,10 @@
   <select id="place-select"></select>
 </div>
 <div class="meta-row" id="grid-info"></div>
+
+<div class="panel map-panel">
+  <div id="map"></div>
+</div>
 
 <main>
   <section class="panel">
@@ -51,7 +57,9 @@
 
   <section class="panel">
     <div class="panel-title">Maré</div>
-    <div id="tide-table-host"></div>
+    <div class="chart-scroll">
+      <div id="tide-table-host"></div>
+    </div>
     <div class="legend" id="tide-note"></div>
   </section>
 </main>
@@ -84,9 +92,11 @@
       ERA5 e ondógrafos na tese de doutorado que originou este piloto.
     </p>
   </details>
+  <p class="credit">Piloto desenvolvido por Daniel Brandt Galvão</p>
 </footer>
 
 <div id="app"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
