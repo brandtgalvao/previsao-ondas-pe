@@ -12,14 +12,18 @@ import os
 from bisect import bisect_left
 from datetime import datetime, timedelta, timezone
 
-from tide_parse import parse_tide_pdf
-
 TIDE_DIR = os.path.join(os.path.dirname(__file__), "tide_data")
 LOCAL_UTC_OFFSET_H = 3  # Fuso UTC -03:00 (tabuas DHN em hora local de Brasilia)
 
 
 def build_cache(pdf_path: str, year: int, out_name: str) -> str:
-    """Parseia o PDF da tabua e salva uma lista de extremos (UTC) em JSON."""
+    """Parseia o PDF da tabua e salva uma lista de extremos (UTC) em JSON.
+
+    So e chamada quando o cache JSON ainda nao existe; pdfplumber e
+    importado aqui (nao no topo do modulo) para nao ser uma dependencia
+    obrigatoria no pipeline automatizado, que so le o cache ja pronto.
+    """
+    from tide_parse import parse_tide_pdf
     parsed = parse_tide_pdf(pdf_path)
     extrema = []
     for month, days in parsed.items():
