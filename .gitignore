@@ -14,3 +14,7 @@ __pycache__/
 # Dado gerado pelo pipeline (build output, nao e codigo-fonte)
 site/data/*.json
 data/raw/
+
+# PDFs originais da Tabua de Mare DHN (nao redistribuir o documento fonte;
+# o cache extraido em pipeline/tide_data/*.json e commitado normalmente)
+pipeline/tide_source/*.pdf

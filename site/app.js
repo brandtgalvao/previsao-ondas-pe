@@ -198,6 +198,67 @@ function buildPowerChart(forecast) {
   return chart;
 }
 
+function buildTideChart(forecast) {
+  const wrap = document.createElement("div");
+  const width = forecast.length * 34;
+  const height = 160;
+  const vals = forecast.map((f) => f.tide_m).filter((v) => v !== null && v !== undefined);
+
+  if (vals.length === 0) {
+    wrap.className = "loading";
+    wrap.style.padding = "16px";
+    wrap.textContent = "Maré indisponível para este ponto.";
+    return wrap;
+  }
+
+  const min = Math.min(...vals) - 0.2;
+  const max = Math.max(...vals) + 0.2;
+  const x = (i) => i * 34 + 17;
+  const y = (v) => height - ((v - min) / (max - min)) * height;
+
+  let linePath = "";
+  let areaPath = `M ${x(0)} ${height} `;
+  forecast.forEach((f, i) => {
+    const v = f.tide_m;
+    const py = v == null ? height : y(v);
+    linePath += `${i === 0 ? "M" : "L"} ${x(i)} ${py} `;
+    areaPath += `L ${x(i)} ${py} `;
+  });
+  areaPath += `L ${x(forecast.length - 1)} ${height} Z`;
+
+  wrap.innerHTML = `
+    <svg width="${width}" height="${height}" style="display:block">
+      <path d="${areaPath}" fill="#4fc3e0" opacity="0.18"></path>
+      <path d="${linePath}" fill="none" stroke="#4fc3e0" stroke-width="2"></path>
+    </svg>`;
+
+  const labels = document.createElement("div");
+  labels.className = "chart";
+  labels.style.paddingTop = "4px";
+  let lastDay = null;
+  forecast.forEach((f) => {
+    const col = document.createElement("div");
+    col.className = "col";
+    col.style.height = "0";
+    const dk = dayKey(f.valid_time);
+    if (dk !== lastDay) { col.classList.add("day-start"); lastDay = dk; }
+    const val = document.createElement("div");
+    val.className = "value-label";
+    val.textContent = f.tide_m != null ? f.tide_m.toFixed(1) : "-";
+    col.appendChild(val);
+    const time = document.createElement("div");
+    time.className = "time-label";
+    time.textContent = fmtHour(f.valid_time);
+    col.appendChild(time);
+    labels.appendChild(col);
+  });
+
+  const outer = document.createElement("div");
+  outer.appendChild(wrap);
+  outer.appendChild(labels);
+  return outer;
+}
+
 function buildLegend() {
   const wrap = document.createElement("div");
   wrap.className = "legend";
@@ -260,6 +321,12 @@ async function main() {
     const powerChartHost = document.getElementById("power-chart");
     powerChartHost.innerHTML = "";
     powerChartHost.appendChild(buildPowerChart(forecast));
+
+    const tideChartHost = document.getElementById("tide-chart");
+    tideChartHost.innerHTML = "";
+    tideChartHost.appendChild(buildTideChart(forecast));
+    document.getElementById("tide-note").textContent =
+      "Maré estimada por interpolação entre marés altas/baixas (Tábua de Maré DHN, estação de referência mais próxima).";
 
     document.getElementById("grid-info").textContent =
       `Ponto de grade: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)`;

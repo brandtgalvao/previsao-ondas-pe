@@ -43,3 +43,17 @@ THESIS_POINTS = {
 
 WAVE_PARAMS = ["swh", "mwd", "mwp", "pp1d", "mp2"]
 WIND_PARAMS = ["10u", "10v"]
+
+# Estacao de mare (DHN) de referencia para cada ponto de grade.
+# Recife (08 03.4S) cobre o litoral norte/central; Suape (08 23.6S) cobre
+# do Cabo de Santo Agostinho para o sul, por ser geograficamente mais perto.
+TIDE_STATION = {
+    "gp_goiana": "recife",
+    "gp_itamaraca": "recife",
+    "gp_recife_norte": "recife",
+    "gp_jaboatao_cabo": "suape",
+    "gp_b2_ipojuca_suape": "suape",
+    "gp_sirinhaem": "suape",
+    "gp_tamandare_barreiros": "suape",
+    "gp_sao_jose": "suape",
+}

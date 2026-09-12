@@ -12,9 +12,31 @@ import xarray as xr
 warnings.filterwarnings("ignore", category=FutureWarning, module="cfgrib")
 
 sys.path.insert(0, os.path.dirname(__file__))
-from config import GRID_POINTS, PLACES, THESIS_POINTS  # noqa: E402
+from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION  # noqa: E402
 from fetch_ecmwf import fetch_wave, fetch_wind  # noqa: E402
 from compute import wind_speed_dir, wave_power_kw_m  # noqa: E402
+from tide import TideTable, ensure_cache  # noqa: E402
+
+TIDE_SOURCE_DIR = os.path.join(os.path.dirname(__file__), "tide_source")
+TIDE_YEAR = 2026
+TIDE_PDFS = {
+    "recife": os.path.join(TIDE_SOURCE_DIR, "recife_2026.pdf"),
+    "suape": os.path.join(TIDE_SOURCE_DIR, "suape_2026.pdf"),
+}
+
+
+def load_tide_tables():
+    tables = {}
+    for station, pdf_path in TIDE_PDFS.items():
+        cache_name = f"{station}_{TIDE_YEAR}.json"
+        cache_path = os.path.join(os.path.dirname(__file__), "tide_data", cache_name)
+        if not os.path.exists(cache_path):
+            if not os.path.exists(pdf_path):
+                print(f"Aviso: sem cache nem PDF para mare '{station}', mare ficara nula nesses pontos.")
+                continue
+            ensure_cache(pdf_path, TIDE_YEAR, cache_name)
+        tables[station] = TideTable(cache_path)
+    return tables
 
 OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "site", "data", "forecast.json")
 
@@ -51,12 +73,14 @@ def build(max_hours: int):
 
     wave_ds = open_merged(wave_path)
     wind_ds = open_merged(wind_path)
+    tide_tables = load_tide_tables()
 
     points_out = {}
     for point_id, coords in GRID_POINTS.items():
         lat, lon = coords["lat"], coords["lon"]
         wpt = extract_point_series(wave_ds, lat, lon)
         apt = extract_point_series(wind_ds, lat, lon)
+        tide_table = tide_tables.get(TIDE_STATION.get(point_id))
 
         steps_h = (wpt["step"].values / np.timedelta64(1, "h")).astype(int)
         valid_times = wpt["valid_time"].values
@@ -77,6 +101,12 @@ def build(max_hours: int):
             vt = valid_times[i]
             vt_iso = np.datetime_as_string(vt, unit="m") + "Z"
 
+            tide_m = None
+            if tide_table is not None:
+                vt_dt = vt.astype("datetime64[s]").astype(datetime).replace(tzinfo=timezone.utc)
+                h = tide_table.height_at(vt_dt)
+                tide_m = round(h, 2) if h is not None else None
+
             forecast.append({
                 "step_h": int(steps_h[i]),
                 "valid_time": vt_iso,
@@ -88,6 +118,7 @@ def build(max_hours: int):
                 "wind_speed_ms": round(wind_speed, 1),
                 "wind_dir_deg": round(wind_dir, 0),
                 "power_kw_m": round(power, 1),
+                "tide_m": tide_m,
             })
 
         points_out[point_id] = {
