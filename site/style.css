@@ -123,9 +123,14 @@ main {
 }
 
 .bar {
-  width: 16px;
-  border-radius: 3px 3px 0 0;
+  width: 100%;
+  border-radius: 0;
   transition: opacity 0.15s;
+}
+
+.col.is-now {
+  background: rgba(255,255,255,0.06);
+  box-shadow: inset 1px 0 0 var(--accent-strong), inset -1px 0 0 var(--accent-strong);
 }
 
 .bar:hover {
@@ -290,4 +295,91 @@ footer summary {
   margin: 12px 0 0;
   color: var(--text-dim);
   font-size: 0.72rem;
+}
+
+/* Card de resumo "agora" */
+.summary-panel {
+  margin: 0 24px;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.summary-stat {
+  min-width: 90px;
+}
+
+.summary-stat .stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.summary-stat .stat-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.summary-stat .stat-sub {
+  font-size: 0.68rem;
+  color: var(--accent);
+}
+
+/* Resumo da semana */
+.week-panel { margin: 0 24px; }
+
+#week-strip {
+  display: flex;
+  min-width: max-content;
+}
+
+.week-day {
+  width: 92px;
+  flex: 0 0 auto;
+  text-align: center;
+  padding: 12px 6px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+.week-day .wd-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.week-day .wd-range {
+  font-size: 0.8rem;
+  color: var(--accent-strong);
+  margin-top: 6px;
+}
+
+.week-day .wd-arrow {
+  font-size: 1rem;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+/* Grafico de mare (curva suave) */
+.tide-graph-wrap {
+  position: relative;
+  padding: 16px 12px 0;
+}
+
+.tide-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  color: var(--text);
+  white-space: nowrap;
+  transform: translate(-50%, -110%);
+  display: none;
+  z-index: 5;
 }

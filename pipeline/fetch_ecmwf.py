@@ -35,7 +35,7 @@ def fetch_wind(max_hours: int = 168) -> tuple[str, object]:
         stream="oper",
         type="fc",
         step=hres_steps(max_hours),
-        param=["10u", "10v"],
+        param=["10u", "10v", "2t", "skt"],
         target=target,
     )
     return target, result.datetime

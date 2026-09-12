@@ -94,6 +94,8 @@ def build(max_hours: int):
             mp2 = float(wpt["mp2"].values[i])
             u = float(apt["u10"].values[i]) if "u10" in apt else float(apt["10u"].values[i])
             v = float(apt["v10"].values[i]) if "v10" in apt else float(apt["10v"].values[i])
+            air_temp_k = float(apt["t2m"].values[i]) if "t2m" in apt else float(apt["2t"].values[i])
+            water_temp_k = float(apt["skt"].values[i])
 
             wind_speed, wind_dir = wind_speed_dir(u, v)
             power = wave_power_kw_m(hs, mwp)
@@ -114,6 +116,8 @@ def build(max_hours: int):
                 "wind_dir_deg": round(wind_dir, 0),
                 "power_kw_m": round(power, 1),
                 "energy_j_m2": round(energy, 0),
+                "air_temp_c": round(air_temp_k - 273.15, 1),
+                "water_temp_c": round(water_temp_k - 273.15, 1),
             })
 
         tide_extrema = []
