@@ -1,0 +1,55 @@
+name: Atualizar previsão
+
+on:
+  schedule:
+    - cron: '15 9 * * *'
+    - cron: '15 21 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          python-version: '3.11'
+          channels: conda-forge
+          channel-priority: strict
+
+      - name: Instalar dependências
+        shell: bash -el {0}
+        run: |
+          conda install -y xarray cfgrib eccodes numpy pandas requests
+          pip install ecmwf-opendata
+
+      - name: Rodar pipeline (busca ECMWF Open Data + maré + energia)
+        shell: bash -el {0}
+        run: python pipeline/build_forecast.py --max-hours 168
+
+      - name: Upload do artefato do Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
