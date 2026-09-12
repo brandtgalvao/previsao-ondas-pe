@@ -36,7 +36,14 @@
   </section>
 
   <section class="panel">
-    <div class="panel-title">Energia das ondas (kW/m)</div>
+    <div class="panel-title">Energia das ondas (kJ/m²)</div>
+    <div class="chart-scroll">
+      <div id="energy-chart"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">Potência das ondas (kW/m)</div>
     <div class="chart-scroll">
       <div id="power-chart"></div>
     </div>
@@ -44,9 +51,7 @@
 
   <section class="panel">
     <div class="panel-title">Maré</div>
-    <div class="chart-scroll">
-      <div id="tide-chart"></div>
-    </div>
+    <div id="tide-table-host"></div>
     <div class="legend" id="tide-note"></div>
   </section>
 </main>
@@ -59,8 +64,15 @@
       As previsões de onda (altura significativa, período e direção) e vento vêm do
       <strong>ECMWF Open Data</strong> (modelo HRES/IFS-WAM), grade de 0,25° (~28 km),
       atualizado 2x por dia, licenciado sob CC BY 4.0.
-      A potência das ondas é estimada por P ≈ 0,49 × Hs² × Te, com Te ≈ 0,9 × Tp
-      (aproximação para espectro JONSWAP).
+      A energia das ondas (densidade de energia por área de mar) é estimada por
+      E ≈ 628 × Hs² (J/m²), teoria linear em águas profundas. A potência das ondas
+      (fluxo de energia por metro de crista) é estimada por P ≈ 0,49 × Hs² × Te (kW/m),
+      com Te ≈ 0,9 × Tp (aproximação para espectro JONSWAP) — equivalente a P = E × Cg.
+    </p>
+    <p>
+      A maré é obtida diretamente da Tábua de Maré da Marinha do Brasil (DHN) para
+      2026, estações de Recife e Suape (as mais próximas de cada ponto), mostrando os
+      horários e alturas de preamar/baixa-mar previstos.
     </p>
     <p>
       Devido à resolução do modelo global frente à plataforma continental estreita de

@@ -49,6 +49,19 @@ class TideTable:
         self.times = [datetime.fromisoformat(t).replace(tzinfo=timezone.utc) for t, _ in raw]
         self.heights = [h for _, h in raw]
 
+    def extrema_local_between(self, start_utc: datetime, end_utc: datetime, utc_offset_hours=LOCAL_UTC_OFFSET_H):
+        """Lista de mares altas/baixas (hora local, altura) no intervalo [start_utc, end_utc]."""
+        out = []
+        for t_utc, h in zip(self.times, self.heights):
+            if start_utc <= t_utc <= end_utc:
+                t_local = t_utc - timedelta(hours=utc_offset_hours)
+                out.append({
+                    "date_local": t_local.strftime("%Y-%m-%d"),
+                    "time_local": t_local.strftime("%H:%M"),
+                    "height_m": round(h, 2),
+                })
+        return out
+
     def height_at(self, dt_utc: datetime):
         if dt_utc.tzinfo is None:
             dt_utc = dt_utc.replace(tzinfo=timezone.utc)

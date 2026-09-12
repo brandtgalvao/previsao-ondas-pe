@@ -198,65 +198,92 @@ function buildPowerChart(forecast) {
   return chart;
 }
 
-function buildTideChart(forecast) {
-  const wrap = document.createElement("div");
-  const width = forecast.length * 34;
-  const height = 160;
-  const vals = forecast.map((f) => f.tide_m).filter((v) => v !== null && v !== undefined);
-
-  if (vals.length === 0) {
-    wrap.className = "loading";
-    wrap.style.padding = "16px";
-    wrap.textContent = "Maré indisponível para este ponto.";
-    return wrap;
-  }
-
-  const min = Math.min(...vals) - 0.2;
-  const max = Math.max(...vals) + 0.2;
-  const x = (i) => i * 34 + 17;
-  const y = (v) => height - ((v - min) / (max - min)) * height;
-
-  let linePath = "";
-  let areaPath = `M ${x(0)} ${height} `;
-  forecast.forEach((f, i) => {
-    const v = f.tide_m;
-    const py = v == null ? height : y(v);
-    linePath += `${i === 0 ? "M" : "L"} ${x(i)} ${py} `;
-    areaPath += `L ${x(i)} ${py} `;
-  });
-  areaPath += `L ${x(forecast.length - 1)} ${height} Z`;
-
-  wrap.innerHTML = `
-    <svg width="${width}" height="${height}" style="display:block">
-      <path d="${areaPath}" fill="#4fc3e0" opacity="0.18"></path>
-      <path d="${linePath}" fill="none" stroke="#4fc3e0" stroke-width="2"></path>
-    </svg>`;
-
-  const labels = document.createElement("div");
-  labels.className = "chart";
-  labels.style.paddingTop = "4px";
+function buildEnergyChart(forecast) {
+  const chart = document.createElement("div");
+  chart.className = "chart";
+  const maxE = Math.max(2, ...forecast.map((f) => f.energy_kj_m2)) * 1.15;
   let lastDay = null;
-  forecast.forEach((f) => {
+  for (const f of forecast) {
     const col = document.createElement("div");
     col.className = "col";
-    col.style.height = "0";
     const dk = dayKey(f.valid_time);
     if (dk !== lastDay) { col.classList.add("day-start"); lastDay = dk; }
+
+    const track = document.createElement("div");
+    track.className = "bar-track";
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.height = `${(f.energy_kj_m2 / maxE) * 100}%`;
+    bar.style.background = "#8b6fe0";
+    bar.title = `${f.energy_kj_m2} kJ/m²`;
+    track.appendChild(bar);
+    col.appendChild(track);
+
     const val = document.createElement("div");
     val.className = "value-label";
-    val.textContent = f.tide_m != null ? f.tide_m.toFixed(1) : "-";
+    val.textContent = f.energy_kj_m2.toFixed(1);
     col.appendChild(val);
+
     const time = document.createElement("div");
     time.className = "time-label";
+    time.style.marginTop = "20px";
     time.textContent = fmtHour(f.valid_time);
     col.appendChild(time);
-    labels.appendChild(col);
+
+    chart.appendChild(col);
+  }
+  return chart;
+}
+
+function buildTideTable(tideExtrema) {
+  if (!tideExtrema || tideExtrema.length === 0) {
+    const div = document.createElement("div");
+    div.className = "loading";
+    div.style.padding = "16px";
+    div.textContent = "Maré indisponível para este ponto.";
+    return div;
+  }
+
+  // classifica alta/baixa comparando com o extremo cronologico anterior
+  // (extremos de mare semidiurna alternam alta/baixa/alta/baixa...)
+  const typed = tideExtrema.map((e, i) => {
+    const prev = tideExtrema[i - 1];
+    const isHigh = prev ? e.height_m > prev.height_m : e.height_m > tideExtrema[i + 1]?.height_m;
+    return { ...e, isHigh };
   });
 
-  const outer = document.createElement("div");
-  outer.appendChild(wrap);
-  outer.appendChild(labels);
-  return outer;
+  const days = [];
+  const byDay = {};
+  for (const e of typed) {
+    if (!byDay[e.date_local]) { byDay[e.date_local] = []; days.push(e.date_local); }
+    byDay[e.date_local].push(e);
+  }
+  const maxRows = Math.max(...days.map((d) => byDay[d].length));
+
+  const table = document.createElement("table");
+  table.className = "tide-table";
+
+  const thead = document.createElement("tr");
+  for (const d of days) {
+    const th = document.createElement("th");
+    th.textContent = dayLabel(d);
+    thead.appendChild(th);
+  }
+  table.appendChild(thead);
+
+  for (let r = 0; r < maxRows; r++) {
+    const tr = document.createElement("tr");
+    for (const d of days) {
+      const td = document.createElement("td");
+      const entry = byDay[d][r];
+      if (entry) {
+        td.innerHTML = `<span class="tide-icon">${entry.isHigh ? "▲" : "▼"}</span> ${entry.time_local}h — ${entry.height_m.toFixed(1)} m`;
+      }
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  return table;
 }
 
 function buildLegend() {
@@ -302,6 +329,8 @@ async function main() {
     opt.textContent = place.label;
     select.appendChild(opt);
   }
+  const defaultGridPoint = "gp_b2_ipojuca_suape";
+  if (data.grid_points[defaultGridPoint]) select.value = defaultGridPoint;
 
   function render(gridPointId) {
     const gp = data.grid_points[gridPointId];
@@ -318,15 +347,19 @@ async function main() {
     windChartHost.innerHTML = "";
     windChartHost.appendChild(buildWindChart(forecast));
 
+    const energyChartHost = document.getElementById("energy-chart");
+    energyChartHost.innerHTML = "";
+    energyChartHost.appendChild(buildEnergyChart(forecast));
+
     const powerChartHost = document.getElementById("power-chart");
     powerChartHost.innerHTML = "";
     powerChartHost.appendChild(buildPowerChart(forecast));
 
-    const tideChartHost = document.getElementById("tide-chart");
-    tideChartHost.innerHTML = "";
-    tideChartHost.appendChild(buildTideChart(forecast));
+    const tideTableHost = document.getElementById("tide-table-host");
+    tideTableHost.innerHTML = "";
+    tideTableHost.appendChild(buildTideTable(gp.tide_extrema));
     document.getElementById("tide-note").textContent =
-      "Maré estimada por interpolação entre marés altas/baixas (Tábua de Maré DHN, estação de referência mais próxima).";
+      "Marés altas (▲) e baixas (▼) da Tábua de Maré DHN, horário de Brasília, estação de referência mais próxima.";
 
     document.getElementById("grid-info").textContent =
       `Ponto de grade: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)`;

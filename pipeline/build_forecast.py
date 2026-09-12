@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="cfgrib")
 sys.path.insert(0, os.path.dirname(__file__))
 from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION  # noqa: E402
 from fetch_ecmwf import fetch_wave, fetch_wind  # noqa: E402
-from compute import wind_speed_dir, wave_power_kw_m  # noqa: E402
+from compute import wind_speed_dir, wave_power_kw_m, wave_energy_kj_m2  # noqa: E402
 from tide import TideTable, ensure_cache  # noqa: E402
 
 TIDE_SOURCE_DIR = os.path.join(os.path.dirname(__file__), "tide_source")
@@ -97,15 +97,10 @@ def build(max_hours: int):
 
             wind_speed, wind_dir = wind_speed_dir(u, v)
             power = wave_power_kw_m(hs, pp1d)
+            energy = wave_energy_kj_m2(hs)
 
             vt = valid_times[i]
             vt_iso = np.datetime_as_string(vt, unit="m") + "Z"
-
-            tide_m = None
-            if tide_table is not None:
-                vt_dt = vt.astype("datetime64[s]").astype(datetime).replace(tzinfo=timezone.utc)
-                h = tide_table.height_at(vt_dt)
-                tide_m = round(h, 2) if h is not None else None
 
             forecast.append({
                 "step_h": int(steps_h[i]),
@@ -118,13 +113,20 @@ def build(max_hours: int):
                 "wind_speed_ms": round(wind_speed, 1),
                 "wind_dir_deg": round(wind_dir, 0),
                 "power_kw_m": round(power, 1),
-                "tide_m": tide_m,
+                "energy_kj_m2": round(energy, 1),
             })
+
+        tide_extrema = []
+        if tide_table is not None and len(valid_times) > 0:
+            start_utc = valid_times[0].astype("datetime64[s]").astype(datetime).replace(tzinfo=timezone.utc)
+            end_utc = valid_times[-1].astype("datetime64[s]").astype(datetime).replace(tzinfo=timezone.utc)
+            tide_extrema = tide_table.extrema_local_between(start_utc, end_utc)
 
         points_out[point_id] = {
             "grid_lat": lat,
             "grid_lon": lon,
             "forecast": forecast,
+            "tide_extrema": tide_extrema,
         }
 
     output = {
