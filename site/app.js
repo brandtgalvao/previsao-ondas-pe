@@ -201,7 +201,7 @@ function buildPowerChart(forecast) {
 function buildEnergyChart(forecast) {
   const chart = document.createElement("div");
   chart.className = "chart";
-  const maxE = Math.max(2, ...forecast.map((f) => f.energy_kj_m2)) * 1.15;
+  const maxE = Math.max(500, ...forecast.map((f) => f.energy_j_m2)) * 1.15;
   let lastDay = null;
   for (const f of forecast) {
     const col = document.createElement("div");
@@ -213,15 +213,15 @@ function buildEnergyChart(forecast) {
     track.className = "bar-track";
     const bar = document.createElement("div");
     bar.className = "bar";
-    bar.style.height = `${(f.energy_kj_m2 / maxE) * 100}%`;
+    bar.style.height = `${(f.energy_j_m2 / maxE) * 100}%`;
     bar.style.background = "#8b6fe0";
-    bar.title = `${f.energy_kj_m2} kJ/m²`;
+    bar.title = `${f.energy_j_m2} J/m²`;
     track.appendChild(bar);
     col.appendChild(track);
 
     const val = document.createElement("div");
     val.className = "value-label";
-    val.textContent = f.energy_kj_m2.toFixed(1);
+    val.textContent = f.energy_j_m2.toFixed(0);
     col.appendChild(val);
 
     const time = document.createElement("div");

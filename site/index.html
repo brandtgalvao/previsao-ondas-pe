@@ -36,7 +36,7 @@
   </section>
 
   <section class="panel">
-    <div class="panel-title">Energia das ondas (kJ/m²)</div>
+    <div class="panel-title">Energia das ondas (J/m²)</div>
     <div class="chart-scroll">
       <div id="energy-chart"></div>
     </div>
@@ -66,8 +66,10 @@
       atualizado 2x por dia, licenciado sob CC BY 4.0.
       A energia das ondas (densidade de energia por área de mar) é estimada por
       E ≈ 628 × Hs² (J/m²), teoria linear em águas profundas. A potência das ondas
-      (fluxo de energia por metro de crista) é estimada por P ≈ 0,49 × Hs² × Te (kW/m),
-      com Te ≈ 0,9 × Tp (aproximação para espectro JONSWAP) — equivalente a P = E × Cg.
+      (fluxo de energia por metro de crista) usa a própria fórmula oficial do ECMWF
+      (Bidlot, 2020, <em>Ocean wave model output parameters</em>):
+      P = (ρg²/64π) × Tm₋₁ × Hs² ≈ 0,49 × Hs² × Tm₋₁ (kW/m), onde Tm₋₁ é o "mwp"
+      (mean wave period) do próprio modelo — o período de energia, não uma aproximação.
     </p>
     <p>
       A maré é obtida diretamente da Tábua de Maré da Marinha do Brasil (DHN) para

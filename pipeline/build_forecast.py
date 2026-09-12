@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="cfgrib")
 sys.path.insert(0, os.path.dirname(__file__))
 from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION  # noqa: E402
 from fetch_ecmwf import fetch_wave, fetch_wind  # noqa: E402
-from compute import wind_speed_dir, wave_power_kw_m, wave_energy_kj_m2  # noqa: E402
+from compute import wind_speed_dir, wave_power_kw_m, wave_energy_j_m2  # noqa: E402
 from tide import TideTable, ensure_cache  # noqa: E402
 
 TIDE_SOURCE_DIR = os.path.join(os.path.dirname(__file__), "tide_source")
@@ -96,8 +96,8 @@ def build(max_hours: int):
             v = float(apt["v10"].values[i]) if "v10" in apt else float(apt["10v"].values[i])
 
             wind_speed, wind_dir = wind_speed_dir(u, v)
-            power = wave_power_kw_m(hs, pp1d)
-            energy = wave_energy_kj_m2(hs)
+            power = wave_power_kw_m(hs, mwp)
+            energy = wave_energy_j_m2(hs)
 
             vt = valid_times[i]
             vt_iso = np.datetime_as_string(vt, unit="m") + "Z"
@@ -113,7 +113,7 @@ def build(max_hours: int):
                 "wind_speed_ms": round(wind_speed, 1),
                 "wind_dir_deg": round(wind_dir, 0),
                 "power_kw_m": round(power, 1),
-                "energy_kj_m2": round(energy, 1),
+                "energy_j_m2": round(energy, 0),
             })
 
         tide_extrema = []

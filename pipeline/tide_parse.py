@@ -48,7 +48,10 @@ def parse_tide_pdf(path: str) -> dict:
     result = {}
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
-            words = page.extract_words()
+            # x_tolerance menor que o padrao (3) evita juntar "DOM" (domingo)
+            # com o horario seguinte em algumas linhas (ex: "DOM1110" -> deveria
+            # ser "DOM" + "1110"), bug observado no layout desta tabua.
+            words = page.extract_words(x_tolerance=2)
             month_row = [w for w in words if abs(w["top"] - 90.1) < 3]
             month_names = [w["text"] for w in sorted(month_row, key=lambda w: w["x0"])]
             if len(month_names) != 4 or not all(m in MESES for m in month_names):
