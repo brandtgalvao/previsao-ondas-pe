@@ -1,0 +1,121 @@
+"""Monta o forecast.json consumido pelo site a partir do ECMWF Open Data."""
+import argparse
+import json
+import os
+import sys
+import warnings
+from datetime import datetime, timezone
+
+import numpy as np
+import xarray as xr
+
+warnings.filterwarnings("ignore", category=FutureWarning, module="cfgrib")
+
+sys.path.insert(0, os.path.dirname(__file__))
+from config import GRID_POINTS, PLACES, THESIS_POINTS  # noqa: E402
+from fetch_ecmwf import fetch_wave, fetch_wind  # noqa: E402
+from compute import wind_speed_dir, wave_power_kw_m  # noqa: E402
+
+OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "site", "data", "forecast.json")
+
+
+def open_merged(path: str) -> xr.Dataset:
+    """Abre um GRIB2 que pode conter mais de um 'hypercube' e junta tudo."""
+    datasets = cfgrib_open_datasets(path)
+    if len(datasets) == 1:
+        return datasets[0]
+    return xr.merge(datasets, compat="override", join="outer")
+
+
+def cfgrib_open_datasets(path: str):
+    import cfgrib
+    backend_datasets = cfgrib.open_datasets(path)
+    return [xr.Dataset(ds.data_vars, coords=ds.coords, attrs=ds.attrs) for ds in backend_datasets]
+
+
+def extract_point_series(ds: xr.Dataset, lat: float, lon: float) -> xr.Dataset:
+    point = ds.sel(latitude=lat, longitude=lon, method="nearest")
+    if "step" not in point.dims:
+        point = point.expand_dims("step")
+    return point
+
+
+def build(max_hours: int):
+    print(f"Buscando previsao de onda (ate {max_hours}h)...")
+    wave_path, wave_run = fetch_wave(max_hours)
+    print(f"Rodada de onda: {wave_run}")
+
+    print(f"Buscando previsao de vento (ate {max_hours}h)...")
+    wind_path, wind_run = fetch_wind(max_hours)
+    print(f"Rodada de vento: {wind_run}")
+
+    wave_ds = open_merged(wave_path)
+    wind_ds = open_merged(wind_path)
+
+    points_out = {}
+    for point_id, coords in GRID_POINTS.items():
+        lat, lon = coords["lat"], coords["lon"]
+        wpt = extract_point_series(wave_ds, lat, lon)
+        apt = extract_point_series(wind_ds, lat, lon)
+
+        steps_h = (wpt["step"].values / np.timedelta64(1, "h")).astype(int)
+        valid_times = wpt["valid_time"].values
+
+        forecast = []
+        for i in range(len(steps_h)):
+            hs = float(wpt["swh"].values[i])
+            mwd = float(wpt["mwd"].values[i])
+            mwp = float(wpt["mwp"].values[i])
+            pp1d = float(wpt["pp1d"].values[i])
+            mp2 = float(wpt["mp2"].values[i])
+            u = float(apt["u10"].values[i]) if "u10" in apt else float(apt["10u"].values[i])
+            v = float(apt["v10"].values[i]) if "v10" in apt else float(apt["10v"].values[i])
+
+            wind_speed, wind_dir = wind_speed_dir(u, v)
+            power = wave_power_kw_m(hs, pp1d)
+
+            vt = valid_times[i]
+            vt_iso = np.datetime_as_string(vt, unit="m") + "Z"
+
+            forecast.append({
+                "step_h": int(steps_h[i]),
+                "valid_time": vt_iso,
+                "hs_m": round(hs, 2),
+                "dir_deg": round(mwd, 0),
+                "tm_s": round(mwp, 1),
+                "tp_s": round(pp1d, 1),
+                "tm02_s": round(mp2, 1),
+                "wind_speed_ms": round(wind_speed, 1),
+                "wind_dir_deg": round(wind_dir, 0),
+                "power_kw_m": round(power, 1),
+            })
+
+        points_out[point_id] = {
+            "grid_lat": lat,
+            "grid_lon": lon,
+            "forecast": forecast,
+        }
+
+    output = {
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+        "model_run_wave": str(wave_run),
+        "model_run_wind": str(wind_run),
+        "source": "ECMWF Open Data (HRES, IFS/WAM) - CC BY 4.0",
+        "grid_points": points_out,
+        "places": PLACES,
+    }
+
+    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
+    with open(OUT_PATH, "w", encoding="utf-8") as f:
+        json.dump(output, f, ensure_ascii=False, indent=2)
+
+    print(f"\nOK: {OUT_PATH}")
+    print(f"Pontos de grade: {len(points_out)} | Passos por ponto: {len(forecast)}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max-hours", type=int, default=168)
+    parser.add_argument("--quick", action="store_true", help="teste rapido (24h)")
+    args = parser.parse_args()
+    build(24 if args.quick else args.max_hours)

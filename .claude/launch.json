@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site",
+      "runtimeExecutable": "C:\\Users\\06596613496\\AppData\\Local\\miniforge3\\envs\\ondas_pe\\python.exe",
+      "runtimeArgs": ["-m", "http.server", "8000", "--directory", "site"],
+      "port": 8000
+    }
+  ]
+}

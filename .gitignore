@@ -10,3 +10,7 @@ __pycache__/
 
 # Ambientes
 .env
+
+# Dado gerado pelo pipeline (build output, nao e codigo-fonte)
+site/data/*.json
+data/raw/
