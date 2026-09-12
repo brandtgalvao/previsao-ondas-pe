@@ -1,0 +1,12 @@
+# Dados brutos baixados (GRIB2/NetCDF) - não versionar
+*.grib2
+*.grib2.*idx
+*.nc
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Ambientes
+.env
