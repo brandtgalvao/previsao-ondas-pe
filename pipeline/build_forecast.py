@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="cfgrib")
 
 sys.path.insert(0, os.path.dirname(__file__))
 from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION, TIDE_STATIONS_INFO  # noqa: E402
-from fetch_ecmwf import fetch_wave, fetch_wind  # noqa: E402
+from fetch_ecmwf import fetch_wave, fetch_wind, fetch_temp  # noqa: E402
 from compute import wind_speed_dir, wave_power_kw_m, wave_energy_j_m2  # noqa: E402
 from tide import TideTable, ensure_cache  # noqa: E402
 
@@ -71,8 +71,13 @@ def build(max_hours: int):
     wind_path, wind_run = fetch_wind(max_hours)
     print(f"Rodada de vento: {wind_run}")
 
+    print(f"Buscando previsao de temperatura (ate {max_hours}h)...")
+    temp_path, temp_run = fetch_temp(max_hours)
+    print(f"Rodada de temperatura: {temp_run}")
+
     wave_ds = open_merged(wave_path)
     wind_ds = open_merged(wind_path)
+    temp_ds = open_merged(temp_path)
     tide_tables = load_tide_tables()
 
     points_out = {}
@@ -80,6 +85,7 @@ def build(max_hours: int):
         lat, lon = coords["lat"], coords["lon"]
         wpt = extract_point_series(wave_ds, lat, lon)
         apt = extract_point_series(wind_ds, lat, lon)
+        tpt = extract_point_series(temp_ds, lat, lon)
         tide_table = tide_tables.get(TIDE_STATION.get(point_id))
 
         steps_h = (wpt["step"].values / np.timedelta64(1, "h")).astype(int)
@@ -94,8 +100,8 @@ def build(max_hours: int):
             mp2 = float(wpt["mp2"].values[i])
             u = float(apt["u10"].values[i]) if "u10" in apt else float(apt["10u"].values[i])
             v = float(apt["v10"].values[i]) if "v10" in apt else float(apt["10v"].values[i])
-            air_temp_k = float(apt["t2m"].values[i]) if "t2m" in apt else float(apt["2t"].values[i])
-            water_temp_k = float(apt["skt"].values[i])
+            air_temp_k = float(tpt["t2m"].values[i]) if "t2m" in tpt else float(tpt["2t"].values[i])
+            water_temp_k = float(tpt["skt"].values[i])
 
             wind_speed, wind_dir = wind_speed_dir(u, v)
             power = wave_power_kw_m(hs, mwp)

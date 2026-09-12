@@ -35,7 +35,23 @@ def fetch_wind(max_hours: int = 168) -> tuple[str, object]:
         stream="oper",
         type="fc",
         step=hres_steps(max_hours),
-        param=["10u", "10v", "2t", "skt"],
+        param=["10u", "10v"],
+        target=target,
+    )
+    return target, result.datetime
+
+
+def fetch_temp(max_hours: int = 168) -> tuple[str, object]:
+    """Busca separada de temperatura (2m e skin) -- em chamada propria para
+    reduzir o tamanho de cada download multipart e evitar quedas de conexao."""
+    os.makedirs(RAW_DIR, exist_ok=True)
+    target = os.path.join(RAW_DIR, "temp_latest.grib2")
+    client = Client(source="ecmwf")
+    result = client.retrieve(
+        stream="oper",
+        type="fc",
+        step=hres_steps(max_hours),
+        param=["2t", "skt"],
         target=target,
     )
     return target, result.datetime
