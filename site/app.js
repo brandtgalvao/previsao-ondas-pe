@@ -676,13 +676,16 @@ function buildSummaryCard(place, gp) {
   const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
   const sun = sunTimes(today, place.lat, place.lon);
 
+  // Mesma ordem das secoes na rolagem da pagina: onda -> energia/potencia ->
+  // vento -> temperatura -> mare. Sol fica por ultimo (nao tem secao propria).
   const stats = [
     { label: "Onda", value: `${f.hs_m.toFixed(1)} m`, sub: `Tp ${f.tp_s}s · ${degToCompass(f.dir_deg)}` },
-    { label: "Vento", value: `${(f.wind_speed_ms * 1.94384).toFixed(0)} kt`, sub: degToCompass(f.wind_dir_deg) },
     { label: "Potência", value: `${f.power_kw_m.toFixed(0)} kW/m`, sub: "" },
-    { label: "Maré estimada", value: tideNow !== null ? `${tideNow.toFixed(1)} m` : "-", sub: tideTrend },
+    { label: "Energia", value: `${f.energy_j_m2.toFixed(0)} J/m²`, sub: "" },
+    { label: "Vento", value: `${(f.wind_speed_ms * 1.94384).toFixed(0)} kt`, sub: degToCompass(f.wind_dir_deg) },
     { label: "Água", value: `${f.water_temp_c.toFixed(0)}°C`, sub: "" },
     { label: "Ar", value: `${f.air_temp_c.toFixed(0)}°C`, sub: "" },
+    { label: "Maré estimada", value: tideNow !== null ? `${tideNow.toFixed(1)} m` : "-", sub: tideTrend },
     { label: "Sol", value: `${fmtLocalHM(sun.sunrise)} - ${fmtLocalHM(sun.sunset)}`, sub: "nascer - pôr" },
   ];
 
