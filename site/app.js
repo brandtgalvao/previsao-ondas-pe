@@ -81,9 +81,13 @@ function dayLabel(dayKeyStr) {
 }
 
 function isNowColumn(iso, stepHours) {
-  const t = new Date(iso).getTime();
-  const now = Date.now();
-  return Math.abs(t - now) <= (stepHours * 3600000) / 2;
+  // Usa o inicio do "balde" de N horas em que o instante atual cai, em vez do
+  // passo mais proximo em distancia absoluta - isso evita que, por exemplo,
+  // 22h37 destaque o passo das 00h do dia seguinte so por estar 14min mais
+  // perto (1h23 vs 1h37), o que confundiria o usuario antes da meia-noite real.
+  const stepMs = stepHours * 3600000;
+  const bucketStart = Math.floor(Date.now() / stepMs) * stepMs;
+  return new Date(iso).getTime() === bucketStart;
 }
 
 // --- Calculo de nascer/por do sol (equacao solar padrao, precisao de minutos) ---
@@ -651,11 +655,14 @@ function buildLegend() {
 }
 
 function closestForecastEntry(forecast) {
+  // Mesmo raciocinio do isNowColumn: pega o ultimo passo que ja aconteceu,
+  // nao o mais proximo em distancia absoluta (que poderia "pular" pro
+  // proximo dia antes da meia-noite real).
   const now = Date.now();
-  let best = forecast[0], bestDiff = Infinity;
+  let best = forecast[0];
   for (const f of forecast) {
-    const diff = Math.abs(new Date(f.valid_time).getTime() - now);
-    if (diff < bestDiff) { bestDiff = diff; best = f; }
+    if (new Date(f.valid_time).getTime() <= now) best = f;
+    else break;
   }
   return best;
 }
