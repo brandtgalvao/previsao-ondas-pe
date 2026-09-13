@@ -1,5 +1,6 @@
 """Monta o forecast.json consumido pelo site a partir do ECMWF Open Data."""
 import argparse
+import glob
 import json
 import os
 import sys
@@ -14,29 +15,37 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="cfgrib")
 sys.path.insert(0, os.path.dirname(__file__))
 from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION, TIDE_STATIONS_INFO  # noqa: E402
 from fetch_ecmwf import fetch_wave, fetch_wind, fetch_temp  # noqa: E402
-from compute import wind_speed_dir, wave_power_kw_m, wave_energy_j_m2  # noqa: E402
+from compute import wind_speed_dir, wave_power_kw_m, wave_energy_j_m2, haversine_km  # noqa: E402
 from tide import TideTable, ensure_cache  # noqa: E402
 
 TIDE_SOURCE_DIR = os.path.join(os.path.dirname(__file__), "tide_source")
-TIDE_YEAR = 2026
-TIDE_PDFS = {
-    "recife": os.path.join(TIDE_SOURCE_DIR, "recife_2026.pdf"),
-    "suape": os.path.join(TIDE_SOURCE_DIR, "suape_2026.pdf"),
-}
+TIDE_DATA_DIR = os.path.join(os.path.dirname(__file__), "tide_data")
+TIDE_STATIONS = ["recife", "suape"]
 
 
 def load_tide_tables():
+    """Carrega e mescla TODOS os anos disponiveis (cache JSON) por estacao,
+    sem depender de um ano fixo. Se houver um PDF novo em tide_source/ sem
+    cache correspondente, gera o cache primeiro (requer pdfplumber local;
+    no pipeline automatizado so os caches ja prontos sao usados)."""
     tables = {}
-    for station, pdf_path in TIDE_PDFS.items():
-        cache_name = f"{station}_{TIDE_YEAR}.json"
-        cache_path = os.path.join(os.path.dirname(__file__), "tide_data", cache_name)
-        if not os.path.exists(cache_path):
-            if not os.path.exists(pdf_path):
-                print(f"Aviso: sem cache nem PDF para mare '{station}', mare ficara nula nesses pontos.")
-                continue
-            ensure_cache(pdf_path, TIDE_YEAR, cache_name)
-        tables[station] = TideTable(cache_path)
+    for station in TIDE_STATIONS:
+        for pdf_path in glob.glob(os.path.join(TIDE_SOURCE_DIR, f"{station}_*.pdf")):
+            year = int(os.path.basename(pdf_path).split("_")[1].split(".")[0])
+            cache_name = f"{station}_{year}.json"
+            ensure_cache(pdf_path, year, cache_name)
+
+        raw_all = []
+        for cache_path in sorted(glob.glob(os.path.join(TIDE_DATA_DIR, f"{station}_*.json"))):
+            with open(cache_path, "r", encoding="utf-8") as f:
+                raw_all.extend(json.load(f))
+
+        if not raw_all:
+            print(f"Aviso: nenhuma tabua de mare disponivel para '{station}'; mare ficara indisponivel nesses pontos.")
+            continue
+        tables[station] = TideTable(raw=raw_all)
     return tables
+
 
 OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "site", "data", "forecast.json")
 
@@ -68,12 +77,19 @@ def build(max_hours: int):
     print(f"Rodada de onda: {wave_run}")
 
     print(f"Buscando previsao de vento (ate {max_hours}h)...")
-    wind_path, wind_run = fetch_wind(max_hours)
+    wind_path, wind_run = fetch_wind(max_hours, date=wave_run)
     print(f"Rodada de vento: {wind_run}")
 
     print(f"Buscando previsao de temperatura (ate {max_hours}h)...")
-    temp_path, temp_run = fetch_temp(max_hours)
+    temp_path, temp_run = fetch_temp(max_hours, date=wave_run)
     print(f"Rodada de temperatura: {temp_run}")
+
+    if wind_run != wave_run or temp_run != wave_run:
+        raise RuntimeError(
+            f"Rodadas divergentes entre onda/vento/temperatura "
+            f"(onda={wave_run}, vento={wind_run}, temperatura={temp_run}). "
+            f"Abortando publicacao para nao misturar rodadas diferentes."
+        )
 
     wave_ds = open_merged(wave_path)
     wind_ds = open_merged(wind_path)
@@ -141,13 +157,21 @@ def build(max_hours: int):
             "tide_station": TIDE_STATIONS_INFO.get(station_id),
         }
 
+    places_out = {}
+    for place_id, place in PLACES.items():
+        gp = GRID_POINTS[place["grid_point"]]
+        dist = haversine_km(place["lat"], place["lon"], gp["lat"], gp["lon"])
+        places_out[place_id] = {**place, "grid_distance_km": round(dist, 1)}
+
+    model_run = str(wave_run)
     output = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
-        "model_run_wave": str(wave_run),
-        "model_run_wind": str(wind_run),
+        "model_run": model_run,
+        "model_run_wave": model_run,
+        "model_run_wind": model_run,
         "source": "ECMWF Open Data (HRES, IFS/WAM) - CC BY 4.0",
         "grid_points": points_out,
-        "places": PLACES,
+        "places": places_out,
     }
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)

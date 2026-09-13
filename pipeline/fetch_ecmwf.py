@@ -13,45 +13,54 @@ def hres_steps(max_hours: int) -> list[int]:
     return steps
 
 
-def fetch_wave(max_hours: int = 168) -> tuple[str, object]:
+def fetch_wave(max_hours: int = 168, date=None) -> tuple[str, object]:
     os.makedirs(RAW_DIR, exist_ok=True)
     target = os.path.join(RAW_DIR, "wave_latest.grib2")
     client = Client(source="ecmwf")
-    result = client.retrieve(
+    request = dict(
         stream="wave",
         type="fc",
         step=hres_steps(max_hours),
         param=["swh", "mwd", "mwp", "pp1d", "mp2"],
         target=target,
     )
+    if date is not None:
+        request["date"] = date
+    result = client.retrieve(**request)
     return target, result.datetime
 
 
-def fetch_wind(max_hours: int = 168) -> tuple[str, object]:
+def fetch_wind(max_hours: int = 168, date=None) -> tuple[str, object]:
     os.makedirs(RAW_DIR, exist_ok=True)
     target = os.path.join(RAW_DIR, "wind_latest.grib2")
     client = Client(source="ecmwf")
-    result = client.retrieve(
+    request = dict(
         stream="oper",
         type="fc",
         step=hres_steps(max_hours),
         param=["10u", "10v"],
         target=target,
     )
+    if date is not None:
+        request["date"] = date
+    result = client.retrieve(**request)
     return target, result.datetime
 
 
-def fetch_temp(max_hours: int = 168) -> tuple[str, object]:
+def fetch_temp(max_hours: int = 168, date=None) -> tuple[str, object]:
     """Busca separada de temperatura (2m e skin) -- em chamada propria para
     reduzir o tamanho de cada download multipart e evitar quedas de conexao."""
     os.makedirs(RAW_DIR, exist_ok=True)
     target = os.path.join(RAW_DIR, "temp_latest.grib2")
     client = Client(source="ecmwf")
-    result = client.retrieve(
+    request = dict(
         stream="oper",
         type="fc",
         step=hres_steps(max_hours),
         param=["2t", "skt"],
         target=target,
     )
+    if date is not None:
+        request["date"] = date
+    result = client.retrieve(**request)
     return target, result.datetime

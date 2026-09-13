@@ -56,17 +56,27 @@ const TEMP_STOPS = [
 ];
 const tempColor = (c) => scaleColor(c, TEMP_STOPS);
 
+// Horario de Brasilia fixo (UTC-3, sem horario de verao). Todas as datas do
+// pipeline vem em UTC (valid_time); "deslocamos" -3h e lemos os campos UTC
+// do resultado, um truque padrao para simular fuso fixo sem biblioteca.
+function toLocalDate(isoOrDate) {
+  const d = typeof isoOrDate === "string"
+    ? new Date(isoOrDate + (isoOrDate.length <= 10 ? "T00:00:00Z" : ""))
+    : isoOrDate;
+  return new Date(d.getTime() - 3 * 3600000);
+}
+
 function fmtHour(iso) {
-  const d = new Date(iso);
+  const d = toLocalDate(iso);
   return String(d.getUTCHours()).padStart(2, "0") + "h";
 }
 
 function dayKey(iso) {
-  return iso.slice(0, 10);
+  return toLocalDate(iso).toISOString().slice(0, 10);
 }
 
-function dayLabel(iso) {
-  const d = new Date(iso + (iso.length <= 10 ? "T00:00:00Z" : ""));
+function dayLabel(dayKeyStr) {
+  const d = new Date(dayKeyStr + "T12:00:00Z"); // meio-dia evita ambiguidade de fuso
   return `${DIAS_SEMANA[d.getUTCDay()]} ${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
@@ -126,6 +136,13 @@ function fmtLocalHM(date) {
   return `${String(t.getUTCHours()).padStart(2, "0")}:${String(t.getUTCMinutes()).padStart(2, "0")}`;
 }
 
+function relativeHoursText(isoUtc) {
+  const diffMs = Date.now() - new Date(isoUtc).getTime();
+  const diffH = diffMs / 3600000;
+  if (diffH < 1) return `${Math.round(diffMs / 60000)} min`;
+  return `${diffH.toFixed(1).replace(".0", "")}h`;
+}
+
 function buildDayLabels(forecast) {
   const row = document.createElement("div");
   row.className = "day-labels";
@@ -134,7 +151,7 @@ function buildDayLabels(forecast) {
   for (const f of forecast) {
     const dk = dayKey(f.valid_time);
     if (dk !== lastDay) {
-      groups.push({ day: dk, label: dayLabel(f.valid_time), count: 0 });
+      groups.push({ day: dk, label: dayLabel(dk), count: 0 });
       lastDay = dk;
     }
     groups[groups.length - 1].count++;
@@ -249,9 +266,26 @@ function buildDirectionLineChart(forecast) {
     linePath += `${i === 0 ? "M" : "L"} ${x(i)} ${y(v)} `;
   });
 
+  // eixo com linhas horizontais e graus dos dois lados, passo "redondo"
+  const range = max - min;
+  const niceSteps = [5, 10, 15, 20, 30, 45, 90];
+  const step = niceSteps.find((s) => s >= range / 5) || 90;
+  const firstTick = Math.ceil(min / step) * step;
+  const ticks = [];
+  for (let v = firstTick; v <= max; v += step) ticks.push(v);
+
+  const gridLines = ticks.map((v) => {
+    const yy = y(v);
+    const label = Math.round(((v % 360) + 360) % 360);
+    return `<line x1="0" y1="${yy}" x2="${width}" y2="${yy}" stroke="rgba(255,255,255,0.08)" stroke-width="1"></line>
+      <text x="4" y="${yy - 3}" fill="var(--text-dim)" font-size="10">${label}°</text>
+      <text x="${width - 4}" y="${yy - 3}" fill="var(--text-dim)" font-size="10" text-anchor="end">${label}°</text>`;
+  }).join("");
+
   const wrap = document.createElement("div");
-  wrap.innerHTML = `<svg width="${width}" height="${height}" style="display:block">
-    <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2"></path>
+  wrap.innerHTML = `<svg width="${width}" height="${height}" style="display:block; overflow: visible;">
+    ${gridLines}
+    <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.5"></path>
   </svg>`;
 
   const labels = document.createElement("div");
@@ -396,7 +430,7 @@ function buildTempChart(forecast, mode = "water") {
 
     const val = document.createElement("div");
     val.className = "value-label";
-    val.textContent = f[key].toFixed(0);
+    val.textContent = mode === "water" ? f[key].toFixed(1) : f[key].toFixed(0);
     col.appendChild(val);
 
     const time = document.createElement("div");
@@ -644,7 +678,7 @@ function buildSummaryCard(place, gp) {
     { label: "Onda", value: `${f.hs_m.toFixed(1)} m`, sub: `Tp ${f.tp_s}s · ${degToCompass(f.dir_deg)}` },
     { label: "Vento", value: `${(f.wind_speed_ms * 1.94384).toFixed(0)} kt`, sub: degToCompass(f.wind_dir_deg) },
     { label: "Potência", value: `${f.power_kw_m.toFixed(0)} kW/m`, sub: "" },
-    { label: "Maré", value: tideNow !== null ? `${tideNow.toFixed(1)} m` : "-", sub: tideTrend },
+    { label: "Maré estimada", value: tideNow !== null ? `${tideNow.toFixed(1)} m` : "-", sub: tideTrend },
     { label: "Água", value: `${f.water_temp_c.toFixed(0)}°C`, sub: "" },
     { label: "Ar", value: `${f.air_temp_c.toFixed(0)}°C`, sub: "" },
     { label: "Sol", value: `${fmtLocalHM(sun.sunrise)} - ${fmtLocalHM(sun.sunset)}`, sub: "nascer - pôr" },
@@ -772,8 +806,22 @@ async function main() {
       ? `Tábua de maré (Ref.: ${st.name}, ${st.lon.toFixed(2)} ${st.lat.toFixed(2)})`
       : "Tábua de maré";
 
+    const distTxt = place.grid_distance_km != null ? ` · ~${place.grid_distance_km} km da costa` : "";
     document.getElementById("grid-info").textContent =
-      `Ponto de grade mais próximo: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)`;
+      `Ponto de grade mais próximo: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)${distTxt} · Previsão em ponto oceânico do ECMWF; não representa diretamente a arrebentação na praia.`;
+
+    const f = closestForecastEntry(forecast);
+    document.getElementById("summary-updated").textContent =
+      `Atualizado há ${relativeHoursText(data.generated_at)} (rodada ${data.model_run_wave} UTC) · Valores referentes a ${dayLabel(dayKey(f.valid_time))}, ${fmtHour(f.valid_time)}`;
+
+    const staleEl = document.getElementById("stale-warning");
+    const ageH = (Date.now() - new Date(data.generated_at).getTime()) / 3600000;
+    if (ageH > 18) {
+      staleEl.hidden = false;
+      staleEl.textContent = "Aviso: dados desatualizados (mais de 18h desde a última atualização). A previsão pode não refletir as condições mais recentes.";
+    } else {
+      staleEl.hidden = true;
+    }
   }
 
   select.addEventListener("change", () => render(select.value));

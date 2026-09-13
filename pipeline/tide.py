@@ -43,9 +43,13 @@ def build_cache(pdf_path: str, year: int, out_name: str) -> str:
 
 
 class TideTable:
-    def __init__(self, json_path: str):
-        with open(json_path, "r", encoding="utf-8") as f:
-            raw = json.load(f)
+    def __init__(self, json_path: str = None, raw: list = None):
+        """Aceita um caminho de arquivo JSON (um ano) ou uma lista `raw` ja
+        carregada (permite mesclar varios anos antes de construir a tabela)."""
+        if raw is None:
+            with open(json_path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+        raw = sorted(raw, key=lambda e: e[0])
         self.times = [datetime.fromisoformat(t).replace(tzinfo=timezone.utc) for t, _ in raw]
         self.heights = [h for _, h in raw]
 

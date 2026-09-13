@@ -39,3 +39,13 @@ def wave_power_kw_m(hs: float, te: float) -> float:
     if hs is None or te is None or math.isnan(hs) or math.isnan(te):
         return float("nan")
     return 0.49 * (hs ** 2) * te
+
+
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Distancia em linha reta (km) entre duas coordenadas geograficas."""
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlambda / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))

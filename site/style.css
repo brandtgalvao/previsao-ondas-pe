@@ -300,6 +300,26 @@ footer summary {
 /* Card de resumo "agora" */
 .summary-panel {
   margin: 0 24px;
+}
+
+.summary-updated {
+  padding: 8px 16px 0;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.stale-warning {
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  background: rgba(232, 69, 47, 0.18);
+  border: 1px solid #e8452f;
+  border-radius: 6px;
+  color: #ffb4a3;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.summary-stats-row {
   padding: 14px 16px;
   display: flex;
   flex-wrap: wrap;
