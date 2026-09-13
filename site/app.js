@@ -526,9 +526,9 @@ function buildTideGraph(tideExtrema) {
   const crosshair = wrap.querySelector(".hover-crosshair");
   const tooltip = wrap.querySelector(".tide-tooltip");
 
-  svg.addEventListener("mousemove", (ev) => {
+  function showTooltipAt(clientX) {
     const rect = svg.getBoundingClientRect();
-    const px = ev.clientX - rect.left;
+    const px = clientX - rect.left;
     const t = t0 + (px / width) * (t1 - t0);
     const h = tideHeightAt(points, t);
     if (h === null) return;
@@ -539,11 +539,23 @@ function buildTideGraph(tideExtrema) {
     tooltip.style.left = `${px}px`;
     tooltip.style.top = `${y(h)}px`;
     tooltip.textContent = `${fmtLocalHM(new Date(t))} — ${h.toFixed(2)} m`;
-  });
-  svg.addEventListener("mouseleave", () => {
+  }
+  function hideTooltip() {
     crosshair.style.display = "none";
     tooltip.style.display = "none";
-  });
+  }
+  svg.addEventListener("mousemove", (ev) => showTooltipAt(ev.clientX));
+  svg.addEventListener("mouseleave", hideTooltip);
+  // toque: mostra/atualiza no toque e arraste, sem bloquear a rolagem
+  // horizontal nativa do painel (necessaria pra ver a semana toda no celular)
+  svg.addEventListener("touchstart", (ev) => {
+    const touch = ev.touches[0];
+    if (touch) showTooltipAt(touch.clientX);
+  }, { passive: true });
+  svg.addEventListener("touchmove", (ev) => {
+    const touch = ev.touches[0];
+    if (touch) showTooltipAt(touch.clientX);
+  }, { passive: true });
 
   const labels = document.createElement("div");
   labels.className = "day-labels";
