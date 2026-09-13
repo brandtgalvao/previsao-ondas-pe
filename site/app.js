@@ -75,9 +75,11 @@ function dayKey(iso) {
   return toLocalDate(iso).toISOString().slice(0, 10);
 }
 
-function dayLabel(dayKeyStr) {
+function dayLabel(dayKeyStr, withMonth = false) {
   const d = new Date(dayKeyStr + "T12:00:00Z"); // meio-dia evita ambiguidade de fuso
-  return `${DIAS_SEMANA[d.getUTCDay()]} ${String(d.getUTCDate()).padStart(2, "0")}`;
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  const datePart = withMonth ? `${day}/${String(d.getUTCMonth() + 1).padStart(2, "0")}` : day;
+  return `${DIAS_SEMANA[d.getUTCDay()]} ${datePart}`;
 }
 
 function isNowColumn(iso, stepHours) {
@@ -138,13 +140,6 @@ function fmtLocalHM(date) {
   // horario de Brasilia fixo (UTC-3, sem horario de verao)
   const t = new Date(date.getTime() - 3 * 3600000);
   return `${String(t.getUTCHours()).padStart(2, "0")}:${String(t.getUTCMinutes()).padStart(2, "0")}`;
-}
-
-function relativeHoursText(isoUtc) {
-  const diffMs = Date.now() - new Date(isoUtc).getTime();
-  const diffH = diffMs / 3600000;
-  if (diffH < 1) return `${Math.round(diffMs / 60000)} min`;
-  return `${diffH.toFixed(1).replace(".0", "")}h`;
 }
 
 function buildDayLabels(forecast) {
@@ -747,7 +742,7 @@ async function main() {
   }
 
   document.getElementById("meta").textContent =
-    `Rodada do modelo: ${data.model_run_wave} UTC · Gerado em: ${data.generated_at} · Fonte: ${data.source}`;
+    `Rodada do modelo: ${data.model_run_wave} UTC · Atualizado em: ${data.generated_at} · Fonte: ${data.source}`;
 
   const select = document.getElementById("place-select");
   select.innerHTML = "";
@@ -819,7 +814,7 @@ async function main() {
 
     const f = closestForecastEntry(forecast);
     document.getElementById("summary-updated").textContent =
-      `Atualizado há ${relativeHoursText(data.generated_at)} (rodada ${data.model_run_wave} UTC) · Valores referentes a ${dayLabel(dayKey(f.valid_time))}, ${fmtHour(f.valid_time)}`;
+      `Valores referentes a ${dayLabel(dayKey(f.valid_time), true)}, ${fmtHour(f.valid_time)}`;
 
     const staleEl = document.getElementById("stale-warning");
     const ageH = (Date.now() - new Date(data.generated_at).getTime()) / 3600000;
