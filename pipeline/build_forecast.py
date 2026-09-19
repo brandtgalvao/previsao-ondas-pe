@@ -17,6 +17,7 @@ from config import GRID_POINTS, PLACES, THESIS_POINTS, TIDE_STATION, TIDE_STATIO
 from fetch_ecmwf import fetch_wave, fetch_wind, fetch_temp  # noqa: E402
 from compute import wind_speed_dir, wave_power_kw_m, wave_energy_j_m2, haversine_km  # noqa: E402
 from tide import TideTable, ensure_cache  # noqa: E402
+from alerts import run_alerts  # noqa: E402
 
 TIDE_SOURCE_DIR = os.path.join(os.path.dirname(__file__), "tide_source")
 TIDE_DATA_DIR = os.path.join(os.path.dirname(__file__), "tide_data")
@@ -180,6 +181,9 @@ def build(max_hours: int):
 
     print(f"\nOK: {OUT_PATH}")
     print(f"Pontos de grade: {len(points_out)} | Passos por ponto: {len(forecast)}")
+
+    print("\nVerificando alertas de ondas (Grande/Extrema)...")
+    run_alerts(places_out, points_out, model_run)
 
 
 if __name__ == "__main__":

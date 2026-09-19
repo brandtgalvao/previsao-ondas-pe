@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a1a28">
+<title>Cancelar alertas — Previsão de Ondas PE</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%8A%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>🌊 Cancelar alertas de ondas</h1>
+  <p>Previsão de Ondas — Litoral de Pernambuco</p>
+</header>
+<main style="padding: 24px; max-width: 480px;">
+  <section class="panel" style="padding: 20px;">
+    <p id="unsub-status">Processando cancelamento...</p>
+  </section>
+  <p style="margin-top: 16px;"><a href="index.html" style="color: var(--accent);">Voltar para a previsão</a></p>
+</main>
+<script src="alerts-config.js"></script>
+<script>
+(async function () {
+  const statusEl = document.getElementById("unsub-status");
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+  const token = params.get("token");
+
+  if (!id || !token) {
+    statusEl.textContent = "Link de cancelamento inválido ou incompleto.";
+    return;
+  }
+  if (!window.ALERTS_CONFIG || !window.ALERTS_CONFIG.supabaseUrl || !window.ALERTS_CONFIG.supabaseAnonKey) {
+    statusEl.textContent = "Sistema de alertas ainda em configuração. Tente novamente mais tarde.";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${window.ALERTS_CONFIG.supabaseUrl}/rest/v1/rpc/unsubscribe`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": window.ALERTS_CONFIG.supabaseAnonKey,
+        "Authorization": `Bearer ${window.ALERTS_CONFIG.supabaseAnonKey}`,
+      },
+      body: JSON.stringify({ p_id: id, p_token: token }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const result = await res.json();
+    statusEl.textContent = result === true
+      ? "Cadastro cancelado com sucesso. Você não vai mais receber alertas."
+      : "Não foi possível cancelar (link já usado ou inválido).";
+  } catch (err) {
+    statusEl.textContent = `Erro ao processar o cancelamento (${err.message}). Tente novamente mais tarde.`;
+  }
+})();
+</script>
+</body>
+</html>

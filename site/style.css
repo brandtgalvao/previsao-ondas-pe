@@ -499,6 +499,132 @@ footer summary {
   font-size: 0.78rem;
 }
 
+/* Alertas de ondas (cadastro) */
+.alerts-toggle-row {
+  padding: 0 24px 16px;
+}
+
+.alerts-panel { margin: 0 24px 20px; }
+
+.alerts-body {
+  padding: 12px 16px 16px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.alerts-body > p:first-child { margin-top: 0; }
+
+.alerts-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.alerts-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.alerts-field input,
+.alerts-field select,
+.alerts-conditional-input {
+  background: var(--bg-panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.alerts-conditional-input {
+  margin-top: -4px;
+  width: 100%;
+}
+
+.alerts-conditional-input:disabled {
+  opacity: 0.45;
+}
+
+.alerts-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alerts-fieldset legend {
+  padding: 0 6px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--accent-strong);
+}
+
+.alerts-radio, .alerts-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.alerts-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.alerts-consent input { margin-top: 3px; }
+
+.alerts-submit-btn {
+  align-self: flex-start;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  padding: 9px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.alerts-submit-btn:hover { background: var(--accent-strong); }
+.alerts-submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+.alerts-msg {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.alerts-msg-ok {
+  background: rgba(79, 209, 90, 0.15);
+  border: 1px solid #4fd15a;
+  color: #b6f0bc;
+}
+
+.alerts-msg-error {
+  background: rgba(232, 69, 47, 0.18);
+  border: 1px solid #e8452f;
+  color: #ffb4a3;
+}
+
+.alerts-note {
+  margin: 12px 0 0;
+  font-size: 0.72rem;
+}
+
 /* Grafico de mare (curva suave) */
 .tide-graph-wrap {
   position: relative;

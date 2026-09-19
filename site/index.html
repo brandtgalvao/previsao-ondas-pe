@@ -22,6 +22,57 @@
 </div>
 <div class="meta-row" id="grid-info"></div>
 
+<div class="alerts-toggle-row">
+  <button id="alerts-toggle-btn" class="scale-toggle-btn" type="button">🔔 Receber alertas de ondas</button>
+</div>
+
+<section class="panel alerts-panel" id="alerts-panel" hidden>
+  <div class="panel-title">Receber alertas de ondas</div>
+  <div class="alerts-body">
+    <p>
+      Cadastre-se para receber um aviso quando a previsão atingir as classes
+      <b>Grande</b> ou <b>Extrema</b> da Escala de Ondas em Pernambuco
+      (referência P2/ERA5), na praia que você escolher. Piloto de pesquisa
+      acadêmica — seus dados são usados exclusivamente para este fim.
+    </p>
+    <form id="alerts-form" class="alerts-form">
+      <label class="alerts-field">
+        Nome
+        <input type="text" name="nome" required>
+      </label>
+
+      <label class="alerts-field">
+        Praia/município de interesse
+        <select name="place_id" id="alerts-place-select" required></select>
+      </label>
+
+      <fieldset class="alerts-fieldset">
+        <legend>Nível desejado</legend>
+        <label class="alerts-radio"><input type="radio" name="nivel" value="grande_extrema" checked> Ondas Grandes e Extremas</label>
+        <label class="alerts-radio"><input type="radio" name="nivel" value="extrema"> Apenas Ondas Extremas</label>
+      </fieldset>
+
+      <fieldset class="alerts-fieldset">
+        <legend>Canal</legend>
+        <label class="alerts-check"><input type="checkbox" name="canal_email" checked> E-mail</label>
+        <input type="email" name="email" placeholder="seu@email.com" class="alerts-conditional-input">
+        <label class="alerts-check"><input type="checkbox" name="canal_sms"> SMS</label>
+        <input type="tel" name="telefone" placeholder="+55 81 9xxxx-xxxx" class="alerts-conditional-input" disabled>
+      </fieldset>
+
+      <label class="alerts-consent">
+        <input type="checkbox" name="consentimento" required>
+        Concordo em receber alertas de previsão de ondas e autorizo o uso dos
+        dados informados exclusivamente para essa finalidade.
+      </label>
+
+      <button type="submit" class="alerts-submit-btn">Cadastrar</button>
+      <div class="alerts-msg" id="alerts-msg" hidden></div>
+    </form>
+    <p class="alerts-note">Você pode cancelar a qualquer momento pelo link enviado em cada alerta.</p>
+  </div>
+</section>
+
 <section class="panel summary-panel">
   <div class="panel-title panel-title-flex">
     <span>Condição atual</span>
@@ -166,5 +217,7 @@
 
 <div id="app"></div>
 <script src="app.js"></script>
+<script src="alerts-config.js"></script>
+<script src="alerts.js"></script>
 </body>
 </html>
