@@ -383,6 +383,122 @@ footer summary {
   margin-top: 4px;
 }
 
+/* Escala de Ondas em Pernambuco */
+.panel-title-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scale-toggle-btn {
+  background: var(--bg-panel-alt);
+  color: var(--accent-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.scale-toggle-btn:hover,
+.scale-toggle-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.scale-badge {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.sea-condition {
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg-panel-alt);
+}
+
+.sea-condition-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+}
+
+.sea-condition-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.sea-condition-detail {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.scale-info-panel { margin: 0 24px; }
+
+.scale-info-body {
+  padding: 12px 16px 16px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.scale-info-body > p:first-child { margin-top: 0; }
+
+.scale-table-scroll { overflow-x: auto; }
+
+.scale-table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.scale-table th, .scale-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.scale-table th {
+  text-align: left;
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--bg-panel-alt);
+  border-bottom: 2px solid var(--border-strong);
+}
+
+.scale-table tr:nth-child(even) td {
+  background: var(--bg-row-alt);
+}
+
+.scale-details { margin-top: 10px; }
+
+.scale-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.78rem;
+}
+
+.scale-details p {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+}
+
 /* Grafico de mare (curva suave) */
 .tide-graph-wrap {
   position: relative;

@@ -56,6 +56,105 @@ const TEMP_STOPS = [
 ];
 const tempColor = (c) => scaleColor(c, TEMP_STOPS);
 
+// --- Escala de Ondas em Pernambuco ---------------------------------------
+// Referencia offshore P2/ERA5 (1940-2025). Classes por percentil da serie
+// historica: <P5 Muito baixa, P5-P25 Baixa, P25-P75 Normal (50% centrais,
+// nao significa mar calmo/seguro), P75-P95 Grande, >=P95 Extrema (5%
+// maiores registros, nao significa tempestade/risco isoladamente).
+const WAVE_SCALE_CLASSES = ["Muito baixa", "Baixa", "Normal", "Grande", "Extrema"];
+// Identidade visual permanece navy/cyan: so Grande (laranja) e Extrema
+// (vermelho) recebem cor de destaque, para nao virar "arco-iris".
+const WAVE_SCALE_COLORS = ["#6f93ad", "#5bd0f0", "#f2f8fc", "#f0922f", "#e8452f"];
+const WAVE_SCALE_THRESHOLDS = {
+  // [P5, P25, P75, P95]
+  hs_m: [1.21, 1.38, 1.75, 2.15],
+  energy_kj_m2: [0.914, 1.204, 1.914, 2.900],
+  power_kw_m: [4.95, 6.81, 11.41, 18.24],
+};
+
+function classifyScale(value, [p5, p25, p75, p95]) {
+  if (value < p5) return 0;
+  if (value < p25) return 1;
+  if (value < p75) return 2;
+  if (value < p95) return 3;
+  return 4;
+}
+const classifyHs = (hsM) => classifyScale(hsM, WAVE_SCALE_THRESHOLDS.hs_m);
+const classifyEnergy = (energyJm2) => classifyScale(energyJm2 / 1000, WAVE_SCALE_THRESHOLDS.energy_kj_m2);
+const classifyPower = (powerKwM) => classifyScale(powerKwM, WAVE_SCALE_THRESHOLDS.power_kw_m);
+const scaleClassName = (idx) => WAVE_SCALE_CLASSES[idx];
+const scaleClassColor = (idx) => WAVE_SCALE_COLORS[idx];
+
+function scaleBadgeHtml(idx) {
+  return `<span class="scale-badge" style="color:${scaleClassColor(idx)}">${scaleClassName(idx).toUpperCase()}</span>`;
+}
+
+// Aplica destaque discreto de escala num bar de grafico: sempre acrescenta
+// a classe ao title (tooltip nativo), mas so muda visual (borda) p/
+// Grande/Extrema - Muito baixa/Baixa/Normal ficam identicos ao padrao.
+function applyScaleToBar(bar, classIdx, baseTitle) {
+  if (!escalaAtiva) { bar.title = baseTitle; return; }
+  bar.title = `${baseTitle} · ${scaleClassName(classIdx)}`;
+  if (classIdx >= 3) {
+    bar.style.borderTop = `3px solid ${scaleClassColor(classIdx)}`;
+  }
+}
+
+function buildScaleTable() {
+  const { hs_m, energy_kj_m2, power_kw_m } = WAVE_SCALE_THRESHOLDS;
+  function rangeLabel(thresholds, idx, unit, decimals) {
+    const fmt = (v) => v.toFixed(decimals).replace(".", ",");
+    if (idx === 0) return `< ${fmt(thresholds[0])} ${unit}`;
+    if (idx === 4) return `≥ ${fmt(thresholds[3])} ${unit}`;
+    return `${fmt(thresholds[idx - 1])} – ${fmt(thresholds[idx])} ${unit}`;
+  }
+  const table = document.createElement("table");
+  table.className = "scale-table";
+  const thead = document.createElement("tr");
+  ["Classe", "Altura (Hs)", "Energia", "Potência"].forEach((h) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    thead.appendChild(th);
+  });
+  table.appendChild(thead);
+  WAVE_SCALE_CLASSES.forEach((name, idx) => {
+    const tr = document.createElement("tr");
+    const tdName = document.createElement("td");
+    tdName.innerHTML = `<b style="color:${scaleClassColor(idx)}">${name}</b>`;
+    tr.appendChild(tdName);
+    [
+      rangeLabel(hs_m, idx, "m", 2),
+      rangeLabel(energy_kj_m2, idx, "kJ/m²", 3),
+      rangeLabel(power_kw_m, idx, "kW/m", 2),
+    ].forEach((txt) => {
+      const td = document.createElement("td");
+      td.textContent = txt;
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+  return table;
+}
+
+function buildSeaCondition(f) {
+  const hsIdx = classifyHs(f.hs_m);
+  const energyIdx = classifyEnergy(f.energy_j_m2);
+  const powerIdx = classifyPower(f.power_kw_m);
+  // Condicao geral = maior classe entre Hs e Pw; Energia fica de fora por
+  // ser derivada diretamente de Hs^2 (redundante como criterio proprio).
+  const condIdx = Math.max(hsIdx, powerIdx);
+
+  const valueEl = document.getElementById("sea-condition-value");
+  const detailEl = document.getElementById("sea-condition-detail");
+  valueEl.textContent = scaleClassName(condIdx).toUpperCase();
+  valueEl.style.color = scaleClassColor(condIdx);
+  detailEl.innerHTML = `
+    <span>Hs: ${f.hs_m.toFixed(2)} m — <b style="color:${scaleClassColor(hsIdx)}">${scaleClassName(hsIdx)}</b></span>
+    <span>Energia: ${(f.energy_j_m2 / 1000).toFixed(2)} kJ/m² — <b style="color:${scaleClassColor(energyIdx)}">${scaleClassName(energyIdx)}</b></span>
+    <span>Potência: ${f.power_kw_m.toFixed(1)} kW/m — <b style="color:${scaleClassColor(powerIdx)}">${scaleClassName(powerIdx)}</b></span>
+  `;
+}
+
 // Horario de Brasilia fixo (UTC-3, sem horario de verao). Todas as datas do
 // pipeline vem em UTC (valid_time); "deslocamos" -3h e lemos os campos UTC
 // do resultado, um truque padrao para simular fuso fixo sem biblioteca.
@@ -204,11 +303,11 @@ function buildWaveChart(forecast, mode = "combined") {
       } else if (mode === "height") {
         bar.style.height = `${(f.hs_m / maxHs) * 100}%`;
         bar.style.background = "var(--accent)";
-        bar.title = `Hs ${f.hs_m} m`;
+        applyScaleToBar(bar, classifyHs(f.hs_m), `Hs ${f.hs_m} m`);
       } else {
         bar.style.height = `${(f.hs_m / maxHs) * 100}%`;
         bar.style.background = periodColor(f.tp_s);
-        bar.title = `Hs ${f.hs_m} m | Tp ${f.tp_s} s | dir ${f.dir_deg}° (${degToCompass(f.dir_deg)})`;
+        applyScaleToBar(bar, classifyHs(f.hs_m), `Hs ${f.hs_m} m | Tp ${f.tp_s} s | dir ${f.dir_deg}° (${degToCompass(f.dir_deg)})`);
       }
       track.appendChild(bar);
     }
@@ -382,7 +481,8 @@ function buildEPChart(forecast, mode = "power") {
     bar.className = "bar";
     bar.style.height = `${(f[key] / maxV) * 100}%`;
     bar.style.background = colorFn(f[key]);
-    bar.title = `${f[key]} ${unit}`;
+    const classIdx = mode === "energy" ? classifyEnergy(f[key]) : classifyPower(f[key]);
+    applyScaleToBar(bar, classIdx, `${f[key]} ${unit}`);
     track.appendChild(bar);
     col.appendChild(track);
 
@@ -690,10 +790,11 @@ function buildSummaryCard(place, gp) {
 
   // Mesma ordem das secoes na rolagem da pagina: onda -> energia/potencia ->
   // vento -> temperatura -> mare. Sol fica por ultimo (nao tem secao propria).
+  const waveSub = `Tp ${f.tp_s}s · ${degToCompass(f.dir_deg)}` + (escalaAtiva ? ` · ${scaleBadgeHtml(classifyHs(f.hs_m))}` : "");
   const stats = [
-    { label: "Onda", value: `${f.hs_m.toFixed(1)} m`, sub: `Tp ${f.tp_s}s · ${degToCompass(f.dir_deg)}` },
-    { label: "Potência", value: `${f.power_kw_m.toFixed(0)} kW/m`, sub: "" },
-    { label: "Energia", value: `${f.energy_j_m2.toFixed(0)} J/m²`, sub: "" },
+    { label: "Onda", value: `${f.hs_m.toFixed(1)} m`, sub: waveSub },
+    { label: "Potência", value: `${f.power_kw_m.toFixed(0)} kW/m`, sub: escalaAtiva ? scaleBadgeHtml(classifyPower(f.power_kw_m)) : "" },
+    { label: "Energia", value: `${f.energy_j_m2.toFixed(0)} J/m²`, sub: escalaAtiva ? scaleBadgeHtml(classifyEnergy(f.energy_j_m2)) : "" },
     { label: "Vento", value: `${(f.wind_speed_ms * 1.94384).toFixed(0)} kt`, sub: degToCompass(f.wind_dir_deg) },
     { label: "Água", value: `${f.water_temp_c.toFixed(0)}°C`, sub: "" },
     { label: "Ar", value: `${f.air_temp_c.toFixed(0)}°C`, sub: "" },
@@ -743,6 +844,9 @@ let currentWaveMode = "combined";
 let currentEPMode = "power";
 let currentTempMode = "water";
 let currentTideMode = "graph";
+
+let escalaAtiva = false;
+try { escalaAtiva = localStorage.getItem("escalaAtiva") === "1"; } catch (e) { /* storage indisponivel */ }
 
 async function main() {
   const root = document.getElementById("app");
@@ -839,10 +943,30 @@ async function main() {
     } else {
       staleEl.hidden = true;
     }
+
+    if (escalaAtiva) buildSeaCondition(f);
   }
 
   select.addEventListener("change", () => render(select.value));
   document.getElementById("legend-host").appendChild(buildLegend());
+  document.getElementById("scale-table-host").appendChild(buildScaleTable());
+
+  const scaleToggleBtn = document.getElementById("scale-toggle-btn");
+  const scaleInfoPanel = document.getElementById("scale-info-panel");
+  const seaConditionEl = document.getElementById("sea-condition");
+  function updateScaleToggleUI() {
+    scaleToggleBtn.textContent = escalaAtiva ? "Ocultar escala" : "Mostrar escala";
+    scaleToggleBtn.classList.toggle("active", escalaAtiva);
+    scaleInfoPanel.hidden = !escalaAtiva;
+    seaConditionEl.hidden = !escalaAtiva;
+  }
+  scaleToggleBtn.addEventListener("click", () => {
+    escalaAtiva = !escalaAtiva;
+    try { localStorage.setItem("escalaAtiva", escalaAtiva ? "1" : "0"); } catch (e) { /* storage indisponivel */ }
+    updateScaleToggleUI();
+    render(select.value);
+  });
+  updateScaleToggleUI();
 
   function wireTabs(containerId, setter) {
     document.querySelectorAll(`#${containerId} .tab-btn`).forEach((btn) => {

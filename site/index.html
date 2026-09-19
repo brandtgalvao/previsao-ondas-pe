@@ -23,10 +23,45 @@
 <div class="meta-row" id="grid-info"></div>
 
 <section class="panel summary-panel">
-  <div class="panel-title">Condição atual</div>
+  <div class="panel-title panel-title-flex">
+    <span>Condição atual</span>
+    <button id="scale-toggle-btn" class="scale-toggle-btn" type="button">Mostrar escala</button>
+  </div>
   <div class="summary-updated" id="summary-updated"></div>
   <div class="stale-warning" id="stale-warning" hidden></div>
   <div class="summary-stats-row" id="summary-card"></div>
+  <div class="sea-condition" id="sea-condition" hidden>
+    <div class="sea-condition-label">Condição do mar</div>
+    <div class="sea-condition-value" id="sea-condition-value"></div>
+    <div class="sea-condition-detail" id="sea-condition-detail"></div>
+  </div>
+</section>
+
+<section class="panel scale-info-panel" id="scale-info-panel" hidden>
+  <div class="panel-title">Escala de Ondas em Pernambuco</div>
+  <div class="scale-info-body">
+    <p>
+      A classificação posiciona a condição prevista em relação à referência
+      histórica offshore P2/ERA5 de Pernambuco (1940–2025).
+    </p>
+    <div class="scale-table-scroll" id="scale-table-host"></div>
+    <details class="scale-details">
+      <summary>Saiba mais</summary>
+      <p>
+        As classes são definidas por percentis da série histórica: "Muito baixa"
+        fica abaixo do percentil 5 (P5); "Baixa" entre P5 e P25; "Normal" entre
+        P25 e P75 (os 50% centrais da distribuição — não significa
+        necessariamente mar calmo ou condição segura); "Grande" entre P75 e
+        P95; e "Extrema" a partir do percentil 95 (P95) — ou seja, entre os 5%
+        maiores registros históricos da referência utilizada, o que não
+        significa, isoladamente, tempestade, risco ou período de retorno.
+        A escala foi calibrada com dados do ponto offshore P2/ERA5 e pode ser
+        aplicada às previsões dos diferentes pontos do site, mas os limites
+        não representam percentis históricos específicos de cada praia ou
+        município.
+      </p>
+    </details>
+  </div>
 </section>
 
 <section class="panel week-panel">
