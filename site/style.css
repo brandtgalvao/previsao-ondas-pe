@@ -412,11 +412,6 @@ footer summary {
   border-color: var(--accent);
 }
 
-.scale-badge {
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-
 .sea-condition {
   margin: 0 16px 16px;
   padding: 12px 14px;
@@ -445,6 +440,13 @@ footer summary {
   gap: 6px 16px;
   font-size: 0.72rem;
   color: var(--text-dim);
+}
+
+.sea-condition-ref {
+  margin-top: 8px;
+  font-size: 0.66rem;
+  color: var(--text-dim);
+  opacity: 0.8;
 }
 
 .scale-info-panel { margin: 0 24px; }

@@ -85,10 +85,6 @@ const classifyPower = (powerKwM) => classifyScale(powerKwM, WAVE_SCALE_THRESHOLD
 const scaleClassName = (idx) => WAVE_SCALE_CLASSES[idx];
 const scaleClassColor = (idx) => WAVE_SCALE_COLORS[idx];
 
-function scaleBadgeHtml(idx) {
-  return `<span class="scale-badge" style="color:${scaleClassColor(idx)}">${scaleClassName(idx).toUpperCase()}</span>`;
-}
-
 // Aplica destaque discreto de escala num bar de grafico: sempre acrescenta
 // a classe ao title (tooltip nativo), mas so muda visual (borda) p/
 // Grande/Extrema - Muito baixa/Baixa/Normal ficam identicos ao padrao.
@@ -137,21 +133,20 @@ function buildScaleTable() {
 }
 
 function buildSeaCondition(f) {
-  const hsIdx = classifyHs(f.hs_m);
-  const energyIdx = classifyEnergy(f.energy_j_m2);
-  const powerIdx = classifyPower(f.power_kw_m);
   // Condicao geral = maior classe entre Hs e Pw; Energia fica de fora por
   // ser derivada diretamente de Hs^2 (redundante como criterio proprio).
-  const condIdx = Math.max(hsIdx, powerIdx);
+  const condIdx = Math.max(classifyHs(f.hs_m), classifyPower(f.power_kw_m));
 
   const valueEl = document.getElementById("sea-condition-value");
   const detailEl = document.getElementById("sea-condition-detail");
   valueEl.textContent = scaleClassName(condIdx).toUpperCase();
   valueEl.style.color = scaleClassColor(condIdx);
+  // A classe geral ja aparece em destaque acima - nao repete "Grande"/
+  // "Normal" etc ao lado de cada variavel aqui.
   detailEl.innerHTML = `
-    <span>Hs: ${f.hs_m.toFixed(2)} m — <b style="color:${scaleClassColor(hsIdx)}">${scaleClassName(hsIdx)}</b></span>
-    <span>Energia: ${(f.energy_j_m2 / 1000).toFixed(2)} kJ/m² — <b style="color:${scaleClassColor(energyIdx)}">${scaleClassName(energyIdx)}</b></span>
-    <span>Potência: ${f.power_kw_m.toFixed(1)} kW/m — <b style="color:${scaleClassColor(powerIdx)}">${scaleClassName(powerIdx)}</b></span>
+    <span>Hs: ${f.hs_m.toFixed(2)} m</span>
+    <span>Energia: ${f.energy_j_m2.toFixed(0)} J/m²</span>
+    <span>Potência: ${f.power_kw_m.toFixed(1)} kW/m</span>
   `;
 }
 
@@ -790,11 +785,12 @@ function buildSummaryCard(place, gp) {
 
   // Mesma ordem das secoes na rolagem da pagina: onda -> energia/potencia ->
   // vento -> temperatura -> mare. Sol fica por ultimo (nao tem secao propria).
-  const waveSub = `Tp ${f.tp_s}s · ${degToCompass(f.dir_deg)}` + (escalaAtiva ? ` · ${scaleBadgeHtml(classifyHs(f.hs_m))}` : "");
+  // A classe da escala nao aparece mais aqui - fica concentrada so no bloco
+  // "Classificacao das ondas" (buildSeaCondition), pra nao duplicar info.
   const stats = [
-    { label: "Onda", value: `${f.hs_m.toFixed(1)} m`, sub: waveSub },
-    { label: "Potência", value: `${f.power_kw_m.toFixed(0)} kW/m`, sub: escalaAtiva ? scaleBadgeHtml(classifyPower(f.power_kw_m)) : "" },
-    { label: "Energia", value: `${f.energy_j_m2.toFixed(0)} J/m²`, sub: escalaAtiva ? scaleBadgeHtml(classifyEnergy(f.energy_j_m2)) : "" },
+    { label: "Onda", value: `${f.hs_m.toFixed(1)} m`, sub: `Tp ${f.tp_s}s · ${degToCompass(f.dir_deg)}` },
+    { label: "Potência", value: `${f.power_kw_m.toFixed(0)} kW/m`, sub: "" },
+    { label: "Energia", value: `${f.energy_j_m2.toFixed(0)} J/m²`, sub: "" },
     { label: "Vento", value: `${(f.wind_speed_ms * 1.94384).toFixed(0)} kt`, sub: degToCompass(f.wind_dir_deg) },
     { label: "Água", value: `${f.water_temp_c.toFixed(0)}°C`, sub: "" },
     { label: "Ar", value: `${f.air_temp_c.toFixed(0)}°C`, sub: "" },
