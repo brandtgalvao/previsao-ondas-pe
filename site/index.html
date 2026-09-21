@@ -14,122 +14,146 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="hero">
-  <div class="hero-inner">
-    <div class="hero-badge" aria-hidden="true">🌊</div>
-    <p class="hero-eyebrow">Piloto de pesquisa acadêmica</p>
-    <h1 class="hero-title">Previsão de Ondas<br>Litoral de Pernambuco</h1>
-    <p class="hero-meta">Desenvolvido por Daniel Brandt Galvão · dados ECMWF Open Data (HRES / IFS-WAM)</p>
+<a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+
+<header class="status-strip" id="status-strip">
+  <div class="status-strip-top">
+    <div class="status-brand">
+      <svg class="status-mark" viewBox="0 0 40 28" width="34" height="24" fill="none" aria-hidden="true">
+        <path d="M2 18c4-6 8-6 12 0s8 6 12 0 8-6 12 0" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M2 10c4-6 8-6 12 0s8 6 12 0 8-6 12 0" stroke="var(--accent-strong)" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+      </svg>
+      <div class="status-brand-text">
+        <p class="status-name">Previsão de Ondas — Pernambuco</p>
+        <p class="status-sub">Piloto de pesquisa acadêmica · Daniel Brandt Galvão · dados ECMWF Open Data (HRES/IFS-WAM)</p>
+      </div>
+    </div>
+    <div class="status-place">
+      <label for="place-select">Praia / município</label>
+      <select id="place-select"></select>
+    </div>
+  </div>
+
+  <div class="status-readout-row">
+    <div class="summary-stats-row" id="summary-card"></div>
+    <div class="status-condition">
+      <button id="scale-toggle-btn" class="scale-toggle-btn" type="button">Mostrar escala</button>
+      <div class="sea-condition" id="sea-condition" hidden>
+        <div class="sea-condition-label">Classificação das ondas</div>
+        <div class="sea-condition-value" id="sea-condition-value"></div>
+        <div class="sea-condition-detail" id="sea-condition-detail"></div>
+        <div class="sea-condition-ref">Referência P2/ERA5 — Escala de Ondas em Pernambuco</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stale-warning" id="stale-warning" hidden></div>
+
+  <div class="status-foot">
+    <span class="summary-updated" id="summary-updated"></span>
+    <span class="meta-row" id="grid-info"></span>
   </div>
 </header>
 
-<div class="place-select-row">
-  <label for="place-select">Praia / município:</label>
-  <select id="place-select"></select>
+<div id="app"></div>
+
+<div class="dashboard-grid">
+  <aside class="dashboard-aside">
+    <div class="alerts-toggle-row">
+      <button id="alerts-toggle-btn" class="scale-toggle-btn" type="button">
+        <svg class="btn-icon" viewBox="0 0 20 20" width="15" height="15" fill="none" aria-hidden="true">
+          <path d="M10 2.5c-2 0-3.6 1.6-3.6 3.6v2.1c0 .6-.2 1.2-.6 1.7l-1 1.3c-.5.6-.1 1.5.7 1.5h9c.8 0 1.2-.9.7-1.5l-1-1.3a2.7 2.7 0 01-.6-1.7V6.1c0-2-1.6-3.6-3.6-3.6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M8.3 16.2a1.8 1.8 0 003.4 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        Receber alertas de ondas
+      </button>
+    </div>
+
+    <section class="panel alerts-panel" id="alerts-panel" hidden>
+      <div class="panel-title">Receber alertas de ondas</div>
+      <div class="alerts-body">
+        <p>
+          Cadastre-se para receber um aviso quando a previsão atingir as classes
+          <b>Grande</b> ou <b>Extrema</b> da Escala de Ondas em Pernambuco
+          (referência P2/ERA5), na praia que você escolher. Piloto de pesquisa
+          acadêmica — seus dados são usados exclusivamente para este fim.
+        </p>
+        <form id="alerts-form" class="alerts-form">
+          <label class="alerts-field">
+            Nome
+            <input type="text" name="nome" required>
+          </label>
+
+          <label class="alerts-field">
+            Praia/município de interesse
+            <select name="place_id" id="alerts-place-select" required></select>
+          </label>
+
+          <fieldset class="alerts-fieldset">
+            <legend>Nível desejado</legend>
+            <label class="alerts-radio"><input type="radio" name="nivel" value="grande_extrema" checked> Ondas Grandes e Extremas</label>
+            <label class="alerts-radio"><input type="radio" name="nivel" value="extrema"> Apenas Ondas Extremas</label>
+          </fieldset>
+
+          <fieldset class="alerts-fieldset">
+            <legend>Canal</legend>
+            <label class="alerts-check"><input type="checkbox" name="canal_email" checked> E-mail</label>
+            <input type="email" name="email" placeholder="seu@email.com" class="alerts-conditional-input">
+            <label class="alerts-check"><input type="checkbox" name="canal_sms"> SMS</label>
+            <input type="tel" name="telefone" placeholder="+55 81 9xxxx-xxxx" class="alerts-conditional-input" disabled>
+          </fieldset>
+
+          <label class="alerts-consent">
+            <input type="checkbox" name="consentimento" required>
+            Concordo em receber alertas de previsão de ondas e autorizo o uso dos
+            dados informados exclusivamente para essa finalidade.
+          </label>
+
+          <button type="submit" class="alerts-submit-btn">Cadastrar</button>
+          <div class="alerts-msg" id="alerts-msg" hidden></div>
+        </form>
+        <p class="alerts-note">Você pode cancelar a qualquer momento pelo link enviado em cada alerta.</p>
+      </div>
+    </section>
+
+    <section class="panel scale-info-panel" id="scale-info-panel" hidden>
+      <div class="panel-title">Escala de Ondas em Pernambuco</div>
+      <div class="scale-info-body">
+        <p>
+          A classificação posiciona a condição prevista em relação à referência
+          histórica offshore P2/ERA5 de Pernambuco (1940–2025).
+        </p>
+        <div class="scale-table-scroll" id="scale-table-host"></div>
+        <details class="scale-details">
+          <summary>Saiba mais</summary>
+          <p>
+            As classes são definidas por percentis da série histórica: "Muito baixa"
+            fica abaixo do percentil 5 (P5); "Baixa" entre P5 e P25; "Normal" entre
+            P25 e P75 (os 50% centrais da distribuição — não significa
+            necessariamente mar calmo ou condição segura); "Grande" entre P75 e
+            P95; e "Extrema" a partir do percentil 95 (P95) — ou seja, entre os 5%
+            maiores registros históricos da referência utilizada, o que não
+            significa, isoladamente, tempestade, risco ou período de retorno.
+            A escala foi calibrada com dados do ponto offshore P2/ERA5 e pode ser
+            aplicada às previsões dos diferentes pontos do site, mas os limites
+            não representam percentis históricos específicos de cada praia ou
+            município.
+          </p>
+        </details>
+      </div>
+    </section>
+  </aside>
+
+  <div class="dashboard-primary">
+    <section class="panel week-panel">
+      <div class="panel-title">Resumo da semana</div>
+      <div class="chart-scroll"><div id="week-strip"></div></div>
+    </section>
+  </div>
 </div>
-<div class="meta-row" id="grid-info"></div>
 
-<div class="alerts-toggle-row">
-  <button id="alerts-toggle-btn" class="scale-toggle-btn" type="button">🔔 Receber alertas de ondas</button>
-</div>
-
-<section class="panel alerts-panel" id="alerts-panel" hidden>
-  <div class="panel-title">Receber alertas de ondas</div>
-  <div class="alerts-body">
-    <p>
-      Cadastre-se para receber um aviso quando a previsão atingir as classes
-      <b>Grande</b> ou <b>Extrema</b> da Escala de Ondas em Pernambuco
-      (referência P2/ERA5), na praia que você escolher. Piloto de pesquisa
-      acadêmica — seus dados são usados exclusivamente para este fim.
-    </p>
-    <form id="alerts-form" class="alerts-form">
-      <label class="alerts-field">
-        Nome
-        <input type="text" name="nome" required>
-      </label>
-
-      <label class="alerts-field">
-        Praia/município de interesse
-        <select name="place_id" id="alerts-place-select" required></select>
-      </label>
-
-      <fieldset class="alerts-fieldset">
-        <legend>Nível desejado</legend>
-        <label class="alerts-radio"><input type="radio" name="nivel" value="grande_extrema" checked> Ondas Grandes e Extremas</label>
-        <label class="alerts-radio"><input type="radio" name="nivel" value="extrema"> Apenas Ondas Extremas</label>
-      </fieldset>
-
-      <fieldset class="alerts-fieldset">
-        <legend>Canal</legend>
-        <label class="alerts-check"><input type="checkbox" name="canal_email" checked> E-mail</label>
-        <input type="email" name="email" placeholder="seu@email.com" class="alerts-conditional-input">
-        <label class="alerts-check"><input type="checkbox" name="canal_sms"> SMS</label>
-        <input type="tel" name="telefone" placeholder="+55 81 9xxxx-xxxx" class="alerts-conditional-input" disabled>
-      </fieldset>
-
-      <label class="alerts-consent">
-        <input type="checkbox" name="consentimento" required>
-        Concordo em receber alertas de previsão de ondas e autorizo o uso dos
-        dados informados exclusivamente para essa finalidade.
-      </label>
-
-      <button type="submit" class="alerts-submit-btn">Cadastrar</button>
-      <div class="alerts-msg" id="alerts-msg" hidden></div>
-    </form>
-    <p class="alerts-note">Você pode cancelar a qualquer momento pelo link enviado em cada alerta.</p>
-  </div>
-</section>
-
-<section class="panel summary-panel">
-  <div class="panel-title panel-title-flex">
-    <span>Condição atual</span>
-    <button id="scale-toggle-btn" class="scale-toggle-btn" type="button">Mostrar escala</button>
-  </div>
-  <div class="summary-updated" id="summary-updated"></div>
-  <div class="stale-warning" id="stale-warning" hidden></div>
-  <div class="summary-stats-row" id="summary-card"></div>
-  <div class="sea-condition" id="sea-condition" hidden>
-    <div class="sea-condition-label">Classificação das ondas</div>
-    <div class="sea-condition-value" id="sea-condition-value"></div>
-    <div class="sea-condition-detail" id="sea-condition-detail"></div>
-    <div class="sea-condition-ref">Referência P2/ERA5 — Escala de Ondas em Pernambuco</div>
-  </div>
-</section>
-
-<section class="panel scale-info-panel" id="scale-info-panel" hidden>
-  <div class="panel-title">Escala de Ondas em Pernambuco</div>
-  <div class="scale-info-body">
-    <p>
-      A classificação posiciona a condição prevista em relação à referência
-      histórica offshore P2/ERA5 de Pernambuco (1940–2025).
-    </p>
-    <div class="scale-table-scroll" id="scale-table-host"></div>
-    <details class="scale-details">
-      <summary>Saiba mais</summary>
-      <p>
-        As classes são definidas por percentis da série histórica: "Muito baixa"
-        fica abaixo do percentil 5 (P5); "Baixa" entre P5 e P25; "Normal" entre
-        P25 e P75 (os 50% centrais da distribuição — não significa
-        necessariamente mar calmo ou condição segura); "Grande" entre P75 e
-        P95; e "Extrema" a partir do percentil 95 (P95) — ou seja, entre os 5%
-        maiores registros históricos da referência utilizada, o que não
-        significa, isoladamente, tempestade, risco ou período de retorno.
-        A escala foi calibrada com dados do ponto offshore P2/ERA5 e pode ser
-        aplicada às previsões dos diferentes pontos do site, mas os limites
-        não representam percentis históricos específicos de cada praia ou
-        município.
-      </p>
-    </details>
-  </div>
-</section>
-
-<section class="panel week-panel">
-  <div class="panel-title">Resumo da semana</div>
-  <div class="chart-scroll"><div id="week-strip"></div></div>
-</section>
-
-<main>
-  <section class="panel">
+<main id="main-content">
+  <section class="panel panel-wide">
     <div class="panel-title">Altura, período e direção das ondas (de onde vêm)</div>
     <div class="tabs" id="wave-tabs">
       <button class="tab-btn active" data-mode="combined">Combinado</button>
@@ -185,7 +209,6 @@
 </main>
 
 <footer>
-  <div id="meta"></div>
   <details>
     <summary>Sobre os dados e metodologia</summary>
     <p>
@@ -220,10 +243,10 @@
       (célula de mar mais próxima).
     </p>
   </details>
+  <div id="meta"></div>
   <p class="credit">Piloto desenvolvido por Daniel Brandt Galvão, contato: daniel.brandt@ufpe.br</p>
 </footer>
 
-<div id="app"></div>
 <script src="app.js"></script>
 <script src="alerts-config.js"></script>
 <script src="alerts.js"></script>

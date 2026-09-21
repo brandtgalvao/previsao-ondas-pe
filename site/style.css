@@ -10,6 +10,8 @@
   --accent: #5bd0f0;
   --accent-strong: #7ee0ff;
   --day-sep: #3a6690;
+  --scale-grande: #f0922f;
+  --scale-extrema: #e8452f;
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-body: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
 }
@@ -24,79 +26,126 @@ body {
   color: var(--text);
 }
 
-/* Cabecalho / hero */
-header.hero {
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+::-webkit-scrollbar { height: 8px; width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 100;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* ==========================================================================
+   Status strip (topo da pagina: condicao "agora" + selecao de praia)
+   ========================================================================== */
+
+.status-strip {
   position: relative;
-  padding: 40px 24px 32px;
+  padding: 22px 24px 16px;
   border-bottom: 2px solid var(--border);
   background:
-    radial-gradient(ellipse 900px 400px at 15% -20%, rgba(91, 208, 240, 0.12), transparent 60%),
-    linear-gradient(180deg, var(--bg-panel-alt) 0%, var(--bg) 100%);
-  overflow: hidden;
+    radial-gradient(ellipse 900px 420px at 12% -25%, rgba(91, 208, 240, 0.14), transparent 62%),
+    linear-gradient(180deg, var(--bg-panel-alt) 0%, var(--bg) 120%);
+  transition: background 0.4s ease;
 }
 
-.hero-inner {
-  position: relative;
-  max-width: 720px;
+.status-strip[data-scale-class="3"] {
+  background:
+    radial-gradient(ellipse 900px 420px at 12% -25%, rgba(240, 146, 47, 0.22), transparent 62%),
+    linear-gradient(180deg, #2b2013 0%, var(--bg) 120%);
+  border-bottom-color: var(--scale-grande);
 }
 
-.hero-badge {
-  width: 52px;
-  height: 52px;
+.status-strip[data-scale-class="4"] {
+  background:
+    radial-gradient(ellipse 900px 420px at 12% -25%, rgba(232, 69, 47, 0.26), transparent 62%),
+    linear-gradient(180deg, #2e1712 0%, var(--bg) 120%);
+  border-bottom-color: var(--scale-extrema);
+}
+
+.status-strip-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.status-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-  border-radius: 14px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-strong);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-  margin-bottom: 16px;
+  gap: 12px;
+  min-width: 0;
 }
 
-.hero-eyebrow {
-  margin: 0 0 8px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
+.status-mark {
+  flex: 0 0 auto;
 }
 
-.hero-title {
-  margin: 0 0 12px;
+.status-name {
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 2.4rem;
-  line-height: 1.12;
+  font-size: 1.5rem;
+  line-height: 1.15;
   letter-spacing: -0.01em;
   color: var(--text);
 }
 
-.hero-meta {
-  margin: 0;
+.status-sub {
+  margin: 4px 0 0;
   color: var(--text-dim);
-  font-size: 0.88rem;
-  max-width: 52ch;
+  font-size: 0.82rem;
+  max-width: 56ch;
 }
 
-@media (max-width: 480px) {
-  header.hero { padding: 28px 20px 24px; }
-  .hero-badge { width: 44px; height: 44px; font-size: 1.4rem; margin-bottom: 12px; }
-  .hero-title { font-size: 1.65rem; }
-}
-
-.place-select-row {
-  padding: 16px 24px;
+.status-place {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.place-select-row label {
+.status-place label {
   color: var(--text-dim);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
 }
 
 select {
@@ -104,34 +153,132 @@ select {
   color: var(--text);
   border: 1px solid var(--border-strong);
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 9px 12px;
   font-size: 0.95rem;
-  min-width: 260px;
+  min-width: 240px;
 }
 
-main {
-  padding: 0 24px 40px;
+.status-readout-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  max-width: 1400px;
+  margin: 20px auto 0;
+}
+
+.status-condition {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: flex-end;
+  gap: 10px;
+  max-width: 340px;
 }
+
+.status-foot {
+  max-width: 1400px;
+  margin: 14px auto 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+
+.status-foot .summary-updated,
+.status-foot .meta-row {
+  padding: 0;
+}
+
+@media (max-width: 720px) {
+  .status-strip { padding: 18px 20px 14px; }
+  .status-name { font-size: 1.25rem; }
+  .status-readout-row { flex-direction: column; }
+  .status-condition { align-items: stretch; max-width: none; width: 100%; }
+}
+
+/* ==========================================================================
+   Grade de introducao: barra lateral (alertas/escala) + resumo da semana
+   ========================================================================== */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) 1fr;
+  gap: 20px;
+  padding: 20px 24px 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.dashboard-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.dashboard-primary {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Painel base
+   ========================================================================== */
 
 .panel {
   background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-panel-alt) 100%);
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
 .panel-title {
   padding: 12px 18px;
-  font-weight: 600;
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.005em;
   color: var(--accent-strong);
   border-bottom: 1px solid var(--border-strong);
+}
+
+.panel-title-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   Grade tecnica (main): ondas, energia, vento, temperatura, mare
+   ========================================================================== */
+
+main {
+  padding: 20px 24px 40px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+main .panel-wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  main { grid-template-columns: 1fr; }
 }
 
 .chart-scroll {
@@ -183,8 +330,11 @@ main {
   opacity: 0.75;
 }
 
+/* Rotulos de eixo de grafico: compactos por necessidade (colunas de 34px,
+   ate 7 dias x 8/dia por painel) - excecao deliberada ao piso tipografico
+   geral do site, ver .impeccable ignore-value para os valores abaixo. */
 .value-label {
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   color: var(--text-dim);
   margin-top: 4px;
   height: 14px;
@@ -198,14 +348,14 @@ main {
 }
 
 .dir-label {
-  font-size: 0.58rem;
+  font-size: 0.64rem;
   font-weight: 600;
   color: var(--accent);
   line-height: 1.2;
 }
 
 .time-label {
-  font-size: 0.6rem;
+  font-size: 0.66rem;
   color: var(--text-dim);
   margin-top: 4px;
   white-space: nowrap;
@@ -218,7 +368,7 @@ main {
 }
 
 .day-label {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--text);
   border-left: 2px solid var(--day-sep);
@@ -231,7 +381,7 @@ main {
   align-items: center;
   gap: 8px;
   padding: 8px 16px 14px;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
   flex-wrap: wrap;
 }
@@ -253,8 +403,10 @@ main {
 footer {
   padding: 16px 24px 32px;
   color: var(--text-dim);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   border-top: 2px solid var(--border);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 footer details {
@@ -267,7 +419,6 @@ footer summary {
 }
 
 .meta-row {
-  padding: 0 24px;
   color: var(--text-dim);
   font-size: 0.78rem;
 }
@@ -294,7 +445,7 @@ footer summary {
   text-align: left;
   padding: 10px 14px;
   color: var(--accent-strong);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   background: var(--bg-panel-alt);
@@ -318,6 +469,7 @@ footer summary {
   display: flex;
   gap: 6px;
   padding: 10px 16px 0;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -326,7 +478,7 @@ footer summary {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 12px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   cursor: pointer;
 }
 
@@ -340,44 +492,30 @@ footer summary {
 .credit {
   margin: 12px 0 0;
   color: var(--text-dim);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
 }
 
-/* Card de resumo "agora" */
-.summary-panel {
-  margin: 0 24px;
-}
-
-.summary-updated {
-  padding: 8px 16px 0;
-  font-size: 0.7rem;
-  color: var(--text-dim);
-}
-
-.stale-warning {
-  margin: 8px 16px 0;
-  padding: 8px 12px;
-  background: rgba(232, 69, 47, 0.18);
-  border: 1px solid #e8452f;
-  border-radius: 6px;
-  color: #ffb4a3;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
+/* Cartao de resumo "agora" (dentro do status-strip) */
 .summary-stats-row {
-  padding: 14px 16px;
+  flex: 1 1 480px;
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 6px 22px;
+  min-width: 0;
 }
 
 .summary-stat {
-  min-width: 90px;
+  min-width: 84px;
+  padding-right: 22px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.summary-stat:last-child {
+  border-right: none;
 }
 
 .summary-stat .stat-label {
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--text-dim);
@@ -392,36 +530,51 @@ footer summary {
 }
 
 .summary-stat .stat-sub {
-  font-size: 0.68rem;
+  font-size: 0.76rem;
   color: var(--accent);
 }
 
-/* Resumo da semana */
-.week-panel { margin: 0 24px; }
+/* O primeiro indicador (Onda) ganha destaque tipografico: e o numero que
+   sustenta a decisao rapida de "da pra ir" antes mesmo da classificacao. */
+.summary-stats-row > .summary-stat:first-child {
+  padding-right: 26px;
+}
 
+.summary-stats-row > .summary-stat:first-child .stat-value {
+  font-size: 2.15rem;
+  line-height: 1.1;
+}
+
+.summary-stats-row > .summary-stat:first-child .stat-label {
+  font-size: 0.76rem;
+}
+
+/* Resumo da semana */
 #week-strip {
   display: flex;
   min-width: max-content;
 }
 
 .week-day {
-  width: 92px;
+  width: 96px;
   flex: 0 0 auto;
   text-align: center;
-  padding: 12px 6px;
+  padding: 14px 6px;
   border-right: 1px solid rgba(255,255,255,0.05);
 }
 
 .week-day .wd-label {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--text);
 }
 
 .week-day .wd-range {
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--accent-strong);
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .week-day .wd-arrow {
@@ -431,20 +584,16 @@ footer summary {
 }
 
 /* Escala de Ondas em Pernambuco */
-.panel-title-flex {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .scale-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: var(--bg-panel-alt);
   color: var(--accent-strong);
   border: 1px solid var(--border-strong);
   border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 0.72rem;
+  padding: 8px 14px;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: none;
   letter-spacing: normal;
@@ -459,16 +608,23 @@ footer summary {
   border-color: var(--accent);
 }
 
+.btn-icon {
+  flex: 0 0 auto;
+}
+
 .sea-condition {
-  margin: 0 16px 16px;
   padding: 12px 14px;
   border: 1px solid var(--border-strong);
   border-radius: 8px;
   background: var(--bg-panel-alt);
+  width: 100%;
 }
 
+.status-strip[data-scale-class="3"] .sea-condition { border-color: var(--scale-grande); }
+.status-strip[data-scale-class="4"] .sea-condition { border-color: var(--scale-extrema); }
+
 .sea-condition-label {
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--text-dim);
@@ -486,22 +642,20 @@ footer summary {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 16px;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
 }
 
 .sea-condition-ref {
   margin-top: 8px;
-  font-size: 0.66rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
-  opacity: 0.8;
+  opacity: 0.85;
 }
-
-.scale-info-panel { margin: 0 24px; }
 
 .scale-info-body {
   padding: 12px 16px 16px;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--text-dim);
 }
 
@@ -511,7 +665,7 @@ footer summary {
 
 .scale-table {
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   width: 100%;
   margin: 10px 0;
 }
@@ -525,7 +679,7 @@ footer summary {
 .scale-table th {
   text-align: left;
   color: var(--accent-strong);
-  font-size: 0.7rem;
+  font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   background: var(--bg-panel-alt);
@@ -541,20 +695,18 @@ footer summary {
 .scale-details summary {
   cursor: pointer;
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 .scale-details p {
   margin: 8px 0 0;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 /* Alertas de ondas (cadastro) */
 .alerts-toggle-row {
-  padding: 0 24px 16px;
+  display: flex;
 }
-
-.alerts-panel { margin: 0 24px 20px; }
 
 .alerts-body {
   padding: 12px 16px 16px;
@@ -575,7 +727,7 @@ footer summary {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-dim);
 }
 
@@ -611,7 +763,7 @@ footer summary {
 
 .alerts-fieldset legend {
   padding: 0 6px;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--accent-strong);
@@ -630,7 +782,7 @@ footer summary {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
   line-height: 1.4;
 }
@@ -655,7 +807,7 @@ footer summary {
 .alerts-msg {
   padding: 8px 12px;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
 }
 
 .alerts-msg-ok {
@@ -672,7 +824,7 @@ footer summary {
 
 .alerts-note {
   margin: 12px 0 0;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
 }
 
 /* Grafico de mare (curva suave) */
@@ -688,10 +840,22 @@ footer summary {
   border: 1px solid var(--border-strong);
   border-radius: 6px;
   padding: 6px 10px;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   color: var(--text);
   white-space: nowrap;
   transform: translate(-50%, -110%);
   display: none;
   z-index: 5;
+}
+
+.stale-warning {
+  max-width: 1400px;
+  margin: 14px auto 0;
+  padding: 8px 12px;
+  background: rgba(232, 69, 47, 0.18);
+  border: 1px solid #e8452f;
+  border-radius: 6px;
+  color: #ffb4a3;
+  font-size: 0.8rem;
+  font-weight: 600;
 }

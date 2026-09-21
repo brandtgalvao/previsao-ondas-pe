@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-21T00:00:00.000Z",
+  "title": "Design System: Previsão de Ondas — Pernambuco",
+  "extensions": {
+    "colorMeta": {
+      "bg": { "role": "neutral", "displayName": "Deep Navy", "canonical": "#0a1a28" },
+      "bg-panel": { "role": "neutral", "displayName": "Panel Navy", "canonical": "#123049" },
+      "bg-panel-alt": { "role": "neutral", "displayName": "Panel Navy Alt", "canonical": "#0e2538" },
+      "bg-row-alt": { "role": "neutral", "displayName": "Row Navy", "canonical": "#16354f" },
+      "border": { "role": "neutral", "displayName": "Border Navy", "canonical": "#2a4d6b" },
+      "border-strong": { "role": "neutral", "displayName": "Border Navy Strong", "canonical": "#3a6690" },
+      "text": { "role": "neutral", "displayName": "Ice Text", "canonical": "#f2f8fc" },
+      "text-dim": { "role": "neutral", "displayName": "Muted Slate", "canonical": "#9bb6c9" },
+      "accent": { "role": "primary", "displayName": "Signal Cyan", "canonical": "#5bd0f0" },
+      "accent-strong": { "role": "primary", "displayName": "Signal Cyan Strong", "canonical": "#7ee0ff" },
+      "scale-grande": { "role": "tertiary", "displayName": "Grande Amber", "canonical": "#f0922f" },
+      "scale-extrema": { "role": "tertiary", "displayName": "Extrema Red", "canonical": "#e8452f" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The single headline number in the status strip (first stat)." },
+      "headline": { "displayName": "Headline", "purpose": "Product name and escala class value." },
+      "body": { "displayName": "Body", "purpose": "Paragraphs, form copy, footer methodology text." },
+      "label": { "displayName": "Label", "purpose": "Short uppercase captions: stat labels, table headers, legends." }
+    },
+    "shadows": [
+      { "name": "panel-ambient", "value": "0 8px 24px rgba(0,0,0,0.22)", "purpose": "Ambient elevation on every .panel, at rest, never on hover." }
+    ],
+    "motion": [
+      { "name": "status-strip-tint", "value": "background 0.4s ease", "purpose": "Cross-fade of the status strip's background when the escala class crosses into Grande/Extrema." },
+      { "name": "bar-hover", "value": "opacity 0.15s", "purpose": "Chart bar hover feedback." }
+    ],
+    "breakpoints": [
+      { "name": "charts-collapse", "value": "900px" },
+      { "name": "status-strip-stack", "value": "720px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Cyan-filled call to action; used for form submit and the active escala/alerts toggle.",
+      "html": "<button class=\"ds-btn-primary\">Cadastrar</button>",
+      "css": ".ds-btn-primary { background: #5bd0f0; color: #0a1a28; border: none; border-radius: 6px; padding: 9px 18px; font-size: 0.88rem; font-weight: 700; font-family: Inter, sans-serif; cursor: pointer; } .ds-btn-primary:hover { background: #7ee0ff; } .ds-btn-primary:disabled { opacity: 0.6; cursor: default; }"
+    },
+    {
+      "name": "Tab",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Chart mode switcher; wraps to a second line rather than overflowing on narrow panels.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab ds-tab-active\">Combinado</button><button class=\"ds-tab\">Altura</button></div>",
+      "css": ".ds-tabs { display: flex; gap: 6px; flex-wrap: wrap; } .ds-tab { background: #0e2538; color: #9bb6c9; border: 1px solid #2a4d6b; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; font-family: Inter, sans-serif; cursor: pointer; } .ds-tab-active { background: #5bd0f0; color: #0a1a28; border-color: #5bd0f0; font-weight: 700; }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The base card: gradient navy surface, hairline border, ambient shadow. Never nested inside another panel.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-title\">Resumo da semana</div><div class=\"ds-panel-body\">...</div></section>",
+      "css": ".ds-panel { background: linear-gradient(180deg, #123049 0%, #0e2538 100%); border: 1px solid #2a4d6b; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.22); } .ds-panel-title { padding: 12px 18px; font-weight: 700; font-size: 0.9rem; color: #7ee0ff; border-bottom: 1px solid #3a6690; font-family: Inter, sans-serif; } .ds-panel-body { padding: 12px 16px 16px; }"
+    },
+    {
+      "name": "Select / Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Place selector and form fields; disabled state used for the SMS phone field until its channel checkbox is checked.",
+      "html": "<select class=\"ds-select\"><option>Ipojuca</option></select>",
+      "css": ".ds-select { background: #123049; color: #f2f8fc; border: 1px solid #3a6690; border-radius: 6px; padding: 9px 12px; font-size: 0.95rem; font-family: Inter, sans-serif; } .ds-select:focus-visible { outline: 2px solid #7ee0ff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Strip",
+      "kind": "custom",
+      "refersTo": "status-strip",
+      "description": "Signature component: full-width condition-reactive header. Background tints amber/red only when the live escala class is Grande/Extrema (data-scale-class 3 or 4); otherwise stays neutral navy.",
+      "html": "<header class=\"ds-status-strip\" data-scale-class=\"4\"><div class=\"ds-status-name\">Previsão de Ondas — Pernambuco</div><div class=\"ds-status-readout\"><div class=\"ds-stat-hero\">1.6 m</div></div></header>",
+      "css": ".ds-status-strip { padding: 22px 24px 16px; border-bottom: 2px solid #2a4d6b; background: linear-gradient(180deg, #0e2538 0%, #0a1a28 120%); transition: background 0.4s ease; } .ds-status-strip[data-scale-class=\"3\"] { background: linear-gradient(180deg, #2b2013 0%, #0a1a28 120%); border-bottom-color: #f0922f; } .ds-status-strip[data-scale-class=\"4\"] { background: linear-gradient(180deg, #2e1712 0%, #0a1a28 120%); border-bottom-color: #e8452f; } .ds-status-name { font-family: Fraunces, serif; font-weight: 600; font-size: 1.5rem; color: #f2f8fc; } .ds-stat-hero { font-family: Fraunces, serif; font-weight: 600; font-size: 2.15rem; color: #f2f8fc; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Harbor Watch",
+    "overview": "The site reads like an operations board a harbor master or bridge officer would actually stand in front of: the live condition signal comes first, full width, color-coded to the Escala de Ondas em Pernambuco class, and only Grande/Extrema earn a color shift (amber, then red) — everything below Grande stays in the navy/cyan family so the page never turns into a rainbow of false urgency. Below that status strip, a real CSS grid replaces the single stacked column: a utility rail (alerts signup, escala methodology) sits beside the week-at-a-glance summary, and the technical series (wave, energy/power, wind, temperature, tide) form their own two-column grid instead of one long scroll. The product's differentiator is scientific rigor and transparency (ECMWF Open Data, DHN tide tables, real physics formulas), not visual restraint for its own sake — density is a feature, so the system commits to instrument-panel precision (tabular numerals everywhere, hairline dividers, small-multiple charts) rather than a minimal consumer-app look.",
+    "keyCharacteristics": [
+      "Condition-first hierarchy: the status strip is the page's real headline, not a decorative hero.",
+      "Reserved-alert-color discipline: only Grande/Extrema shift the palette toward amber/red.",
+      "True grid layout, not a stack: an aside rail, a primary week view, and a technical charts grid replace the single flex column.",
+      "Instrument-grade micro-typography: tabular numerals, compact chart-axis labels, dense data-viz conventions.",
+      "Editorial display type (Fraunces) reserved for numerals and page/panel identity; Inter carries everything functional."
+    ],
+    "rules": [
+      { "name": "The Reserved-Alert Rule", "body": "Muito baixa / Baixa / Normal never receive their own color — they stay in the navy/cyan neutral system. Only Grande and Extrema are allowed to shift the page's palette.", "section": "colors" },
+      { "name": "The No Long Caps Rule", "body": "Uppercase + letter-spacing is reserved for labels under ~15 characters. Anything longer stays in sentence case.", "section": "typography" }
+    ],
+    "dos": [
+      "Do keep Muito baixa/Baixa/Normal in the neutral navy/cyan palette; reserve amber/red strictly for Grande/Extrema.",
+      "Do use Fraunces only for numerals and top-level identity text; everything functional stays in Inter.",
+      "Do keep panel titles in sentence case regardless of length.",
+      "Do preserve every chart's internal horizontal scroll when placing it in a narrower grid column.",
+      "Do theme browser-native surfaces (selection, scrollbar, focus ring) from the palette."
+    ],
+    "donts": [
+      "Don't add a kicker/eyebrow label above a heading.",
+      "Don't nest .panel chrome inside another .panel.",
+      "Don't use emoji or Unicode glyphs as the icon system.",
+      "Don't let a single technical chart panel span less than half the grid on desktop."
+    ]
+  }
+}

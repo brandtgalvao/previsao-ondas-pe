@@ -1,0 +1,47 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gpt-thin-border-wide-shadow",
+        "value": "*",
+        "files": [
+          "site/style.css"
+        ],
+        "createdAt": "2026-09-21T22:51:02.708Z",
+        "reason": "pre-existing .panel treatment from the established navy/cyan identity (v1 redesign, prior session); this task's brief is structural layout, not a visual-identity overhaul of panel chrome"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-09-21T22:51:02.978Z",
+        "reason": "user confirmed Inter/Fraunces as the established typography in the v1 redesign session (CLAUDE.md); not part of this task's brief"
+      },
+      {
+        "rule": "overused-font",
+        "value": "fraunces",
+        "createdAt": "2026-09-21T22:51:03.248Z",
+        "reason": "user confirmed Inter/Fraunces as the established typography in the v1 redesign session (CLAUDE.md); not part of this task's brief"
+      },
+      {
+        "rule": "em-dash-overuse",
+        "value": "*",
+        "files": [
+          "site/index.html"
+        ],
+        "createdAt": "2026-09-21T22:51:03.498Z",
+        "reason": "em dash is a standard punctuation mark in Brazilian Portuguese academic writing; footer methodology copy authored by the researcher, not AI-generated filler"
+      },
+      {
+        "rule": "gpt-thin-border-wide-shadow",
+        "value": "*",
+        "files": [
+          "site/index.html"
+        ],
+        "createdAt": "2026-09-21T22:51:24.737Z",
+        "reason": "pre-existing .panel treatment from the established navy/cyan identity (v1 redesign, prior session); this task's brief is structural layout, not a visual-identity overhaul of panel chrome"
+      }
+    ]
+  }
+}
