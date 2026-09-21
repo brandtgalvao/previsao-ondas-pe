@@ -32,7 +32,7 @@ POWER_THRESHOLDS_KW_M = [4.95, 6.81, 11.41, 18.24]
 ENERGY_THRESHOLDS_J_M2 = [914, 1204, 1914, 2900]
 
 ALERT_WINDOW_HOURS = 48
-SITE_BASE_URL = "https://brandtgalvao.github.io/previsao-ondas-pe"
+SITE_BASE_URL = "https://mardeondas.com.br"
 
 FORBIDDEN_WORDS = ["perigo", "risco alto", "não navegar", "nao navegar", "aviso oficial"]
 
