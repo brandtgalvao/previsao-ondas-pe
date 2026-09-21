@@ -10,34 +10,80 @@
   --accent: #5bd0f0;
   --accent-strong: #7ee0ff;
   --day-sep: #3a6690;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
   background: var(--bg);
   color: var(--text);
 }
 
-header {
-  padding: 20px 24px 12px;
+/* Cabecalho / hero */
+header.hero {
+  position: relative;
+  padding: 40px 24px 32px;
   border-bottom: 2px solid var(--border);
+  background:
+    radial-gradient(ellipse 900px 400px at 15% -20%, rgba(91, 208, 240, 0.12), transparent 60%),
+    linear-gradient(180deg, var(--bg-panel-alt) 0%, var(--bg) 100%);
+  overflow: hidden;
 }
 
-header h1 {
-  margin: 0 0 4px;
-  font-size: 1.4rem;
+.hero-inner {
+  position: relative;
+  max-width: 720px;
+}
+
+.hero-badge {
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  font-size: 1.6rem;
+  border-radius: 14px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  margin-bottom: 16px;
 }
 
-header p {
+.hero-eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hero-title {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 2.4rem;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.hero-meta {
   margin: 0;
   color: var(--text-dim);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
+  max-width: 52ch;
+}
+
+@media (max-width: 480px) {
+  header.hero { padding: 28px 20px 24px; }
+  .hero-badge { width: 44px; height: 44px; font-size: 1.4rem; margin-bottom: 12px; }
+  .hero-title { font-size: 1.65rem; }
 }
 
 .place-select-row {
@@ -72,20 +118,20 @@ main {
 
 .panel {
   background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-panel-alt) 100%);
-  border: 2px solid var(--border);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
 }
 
 .panel-title {
-  padding: 10px 16px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  letter-spacing: 0.03em;
+  padding: 12px 18px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--accent-strong);
-  border-bottom: 2px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .chart-scroll {
@@ -339,8 +385,9 @@ footer summary {
 }
 
 .summary-stat .stat-value {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
   color: var(--text);
 }
 
@@ -428,9 +475,10 @@ footer summary {
 }
 
 .sea-condition-value {
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin-top: 2px;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 .sea-condition-detail {
