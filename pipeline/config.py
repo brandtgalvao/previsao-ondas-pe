@@ -63,10 +63,12 @@ THESIS_POINTS = {
 WAVE_PARAMS = ["swh", "mwd", "mwp", "pp1d", "mp2"]
 WIND_PARAMS = ["10u", "10v"]
 
-# Estacao de mare (DHN) de referencia para cada ponto costeiro. So os pontos
-# costeiros tem mare (fenomeno de borda de costa/porto); pontos oceanicos
-# nao aparecem aqui de proposito, e build_forecast.py trata a ausencia como
-# "mare indisponivel nesse ponto" (ja suportado pelo site).
+# Estacao de mare (DHN) de referencia para cada ponto, costeiro e oceanico.
+# A mare varia pouco entre as duas distancias (e um fenomeno de grande
+# escala), entao cada ponto oceanico reaproveita a mesma
+# tabua/estacao do ponto costeiro da mesma faixa de latitude - sem isso, o
+# usuario que prefere acompanhar a previsao oceanica perderia a mare, que
+# so faz sentido medida perto da costa/porto.
 # Recife (08 03.4S) cobre o litoral norte/central; Suape (08 23.6S) cobre
 # do Cabo de Santo Agostinho para o sul, por ser geograficamente mais perto.
 TIDE_STATIONS_INFO = {
@@ -82,4 +84,11 @@ TIDE_STATION = {
     "gp_costeira_05": "suape",
     "gp_costeira_06": "suape",
     "gp_costeira_07": "suape",
+    "gp_oceanica_01": "recife",
+    "gp_oceanica_02": "recife",
+    "gp_oceanica_03": "recife",
+    "gp_oceanica_04": "suape",
+    "gp_oceanica_05": "suape",
+    "gp_oceanica_06": "suape",
+    "gp_oceanica_07": "suape",
 }

@@ -93,7 +93,7 @@
     <div class="sea-condition-label">Classificação das ondas</div>
     <div class="sea-condition-value" id="sea-condition-value"></div>
     <div class="sea-condition-detail" id="sea-condition-detail"></div>
-    <div class="sea-condition-ref">Referência P2/ERA5 — Escala de Ondas em Pernambuco</div>
+    <div class="sea-condition-ref">Escala de Ondas em Pernambuco — desenvolvida a partir da tese de doutorado de Daniel Brandt Galvão (referência histórica P2/ERA5)</div>
   </div>
 </section>
 
@@ -146,12 +146,13 @@
   </section>
 
   <section class="panel">
-    <div class="panel-title">Energia e potência das ondas</div>
+    <div class="panel-title">Potência e energia das ondas</div>
     <div class="tabs" id="ep-tabs">
       <button class="tab-btn active" data-mode="power">Potência (kW/m)</button>
       <button class="tab-btn" data-mode="energy">Energia (J/m²)</button>
     </div>
     <div class="chart-scroll">
+      <div id="ep-day-labels"></div>
       <div id="ep-chart"></div>
     </div>
   </section>
@@ -159,6 +160,7 @@
   <section class="panel">
     <div class="panel-title">Vento (nós, direção de onde sopra)</div>
     <div class="chart-scroll">
+      <div id="wind-day-labels"></div>
       <div id="wind-chart"></div>
     </div>
   </section>
@@ -170,6 +172,7 @@
       <button class="tab-btn" data-mode="air">Ar</button>
     </div>
     <div class="chart-scroll">
+      <div id="temp-day-labels"></div>
       <div id="temp-chart"></div>
     </div>
   </section>

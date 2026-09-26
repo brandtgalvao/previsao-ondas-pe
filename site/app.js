@@ -898,16 +898,25 @@ async function main() {
       waveChartHost.appendChild(buildWaveChart(forecast, currentWaveMode));
     }
 
+    const epDayLabels = document.getElementById("ep-day-labels");
     const epChartHost = document.getElementById("ep-chart");
+    epDayLabels.innerHTML = "";
     epChartHost.innerHTML = "";
+    epDayLabels.appendChild(buildDayLabels(forecast));
     epChartHost.appendChild(buildEPChart(forecast, currentEPMode));
 
+    const windDayLabels = document.getElementById("wind-day-labels");
     const windChartHost = document.getElementById("wind-chart");
+    windDayLabels.innerHTML = "";
     windChartHost.innerHTML = "";
+    windDayLabels.appendChild(buildDayLabels(forecast));
     windChartHost.appendChild(buildWindChart(forecast));
 
+    const tempDayLabels = document.getElementById("temp-day-labels");
     const tempChartHost = document.getElementById("temp-chart");
+    tempDayLabels.innerHTML = "";
     tempChartHost.innerHTML = "";
+    tempDayLabels.appendChild(buildDayLabels(forecast));
     tempChartHost.appendChild(buildTempChart(forecast, currentTempMode));
 
     const tideHost = document.getElementById("tide-host");
