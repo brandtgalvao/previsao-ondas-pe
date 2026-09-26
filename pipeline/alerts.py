@@ -2,7 +2,7 @@
 
 Le assinantes ativos no Supabase, verifica a previsao das proximas 48h
 de cada local, detecta ENTRADA/AGRAVAMENTO de classe (evento) e dispara
-e-mail/SMS. Nao depende de nenhuma credencial para o resto do pipeline
+e-mail. Nao depende de nenhuma credencial para o resto do pipeline
 funcionar: se SUPABASE_URL/SUPABASE_SERVICE_KEY nao estiverem configuradas,
 `run_alerts` simplesmente nao faz nada (loga um aviso e retorna).
 
@@ -211,29 +211,6 @@ def send_email(subject: str, body: str, to_email: str) -> bool:
         return False
 
 
-def send_sms(body: str, to_phone: str) -> bool:
-    sid = os.environ.get("TWILIO_ACCOUNT_SID")
-    token = os.environ.get("TWILIO_AUTH_TOKEN")
-    from_number = os.environ.get("TWILIO_FROM_NUMBER")
-    if not (sid and token and from_number):
-        print(f"  [sms nao enviado - credenciais Twilio ausentes] para {to_phone}")
-        return False
-    try:
-        r = requests.post(
-            f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages.json",
-            auth=(sid, token),
-            data={"From": from_number, "To": to_phone, "Body": body},
-            timeout=20,
-        )
-        if not r.ok:
-            print(f"  [sms FALHOU] {to_phone}: {r.status_code} {r.text}")
-            return False
-        return True
-    except requests.RequestException as e:
-        print(f"  [sms FALHOU] {to_phone}: {e}")
-        return False
-
-
 def process_place(sb: SupabaseClient, place_id: str, place_label: str, forecast: list[dict],
                    model_run: str, dry_run: bool = False) -> None:
     result = peak_in_window(forecast)
@@ -265,9 +242,6 @@ def process_place(sb: SupabaseClient, place_id: str, place_label: str, forecast:
         if sub.get("canal_email") and sub.get("email"):
             ok = send_email(subject, personal_body, sub["email"])
             sb.insert("sent_alerts", [_alert_log_row(sub, place_id, event_id, class_key, entry, model_run, "email", ok)])
-        if sub.get("canal_sms") and sub.get("telefone"):
-            ok = send_sms(personal_body, sub["telefone"])
-            sb.insert("sent_alerts", [_alert_log_row(sub, place_id, event_id, class_key, entry, model_run, "sms", ok)])
 
     if not dry_run:
         set_place_state(sb, place_id, new_class_idx, event_id)

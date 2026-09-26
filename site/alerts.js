@@ -22,20 +22,6 @@
     }
   }
 
-  function wireConditionalFields(form) {
-    const emailCk = form.querySelector('[name="canal_email"]');
-    const emailInput = form.querySelector('[name="email"]');
-    const smsCk = form.querySelector('[name="canal_sms"]');
-    const telInput = form.querySelector('[name="telefone"]');
-    function sync() {
-      emailInput.disabled = !emailCk.checked;
-      telInput.disabled = !smsCk.checked;
-    }
-    emailCk.addEventListener("change", sync);
-    smsCk.addEventListener("change", sync);
-    sync();
-  }
-
   function showMsg(el, text, isError) {
     el.hidden = false;
     el.textContent = text;
@@ -44,18 +30,8 @@
 
   async function submitForm(form, msgEl) {
     const fd = new FormData(form);
-    const canalEmail = fd.get("canal_email") === "on";
-    const canalSms = fd.get("canal_sms") === "on";
-    if (!canalEmail && !canalSms) {
-      showMsg(msgEl, "Selecione pelo menos um canal (e-mail ou SMS).", true);
-      return;
-    }
-    if (canalEmail && !fd.get("email")) {
-      showMsg(msgEl, "Informe um e-mail ou desmarque o canal E-mail.", true);
-      return;
-    }
-    if (canalSms && !fd.get("telefone")) {
-      showMsg(msgEl, "Informe um telefone ou desmarque o canal SMS.", true);
+    if (!fd.get("email")) {
+      showMsg(msgEl, "Informe um e-mail.", true);
       return;
     }
     if (!fd.get("consentimento")) {
@@ -69,12 +45,10 @@
 
     const payload = {
       nome: fd.get("nome"),
-      email: canalEmail ? fd.get("email") : null,
-      telefone: canalSms ? fd.get("telefone") : null,
+      email: fd.get("email"),
       place_id: fd.get("place_id"),
       nivel: fd.get("nivel"),
-      canal_email: canalEmail,
-      canal_sms: canalSms,
+      canal_email: true,
       consentimento: true,
     };
 
@@ -97,7 +71,6 @@
       }
       showMsg(msgEl, "Cadastro realizado! Você vai receber um alerta quando a previsão atingir a classe escolhida.", false);
       form.reset();
-      wireConditionalFields(form);
     } catch (err) {
       showMsg(msgEl, `Não foi possível concluir o cadastro (${err.message}). Tente novamente mais tarde.`, true);
     } finally {
@@ -114,7 +87,6 @@
     if (!toggleBtn || !panel || !form) return;
 
     populatePlaces(placeSelect);
-    wireConditionalFields(form);
 
     toggleBtn.addEventListener("click", () => {
       panel.hidden = !panel.hidden;

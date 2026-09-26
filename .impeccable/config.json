@@ -41,6 +41,42 @@
         ],
         "createdAt": "2026-09-21T22:51:24.737Z",
         "reason": "pre-existing .panel treatment from the established navy/cyan identity (v1 redesign, prior session); this task's brief is structural layout, not a visual-identity overhaul of panel chrome"
+      },
+      {
+        "rule": "tiny-text",
+        "value": "*",
+        "files": [
+          "site/index.html"
+        ],
+        "createdAt": "2026-09-26T21:26:12.610Z",
+        "reason": "pre-existing v1 styling, restored verbatim per explicit user request to revert redesign v2 back to v1; not introduced this session"
+      },
+      {
+        "rule": "undersized-ui-text",
+        "value": "*",
+        "files": [
+          "site/index.html"
+        ],
+        "createdAt": "2026-09-26T21:26:12.760Z",
+        "reason": "pre-existing v1 styling, restored verbatim per explicit user request to revert redesign v2 back to v1; not introduced this session"
+      },
+      {
+        "rule": "all-caps-body",
+        "value": "*",
+        "files": [
+          "site/index.html"
+        ],
+        "createdAt": "2026-09-26T21:26:12.909Z",
+        "reason": "pre-existing v1 styling (uppercase panel titles), restored verbatim per explicit user request to revert to v1"
+      },
+      {
+        "rule": "kicker-above-heading",
+        "value": "*",
+        "files": [
+          "site/index.html"
+        ],
+        "createdAt": "2026-09-26T21:26:13.062Z",
+        "reason": "pre-existing v1 hero-eyebrow, restored verbatim per explicit user request to revert to v1"
       }
     ]
   }

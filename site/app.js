@@ -137,10 +137,6 @@ function buildSeaCondition(f) {
   // ser derivada diretamente de Hs^2 (redundante como criterio proprio).
   const condIdx = Math.max(classifyHs(f.hs_m), classifyPower(f.power_kw_m));
 
-  // Tinge o status-strip (topo da pagina) so quando Grande/Extrema - mantem
-  // a identidade navy/cyan como padrao (ver WAVE_SCALE_COLORS acima).
-  document.getElementById("status-strip").dataset.scaleClass = String(condIdx);
-
   const valueEl = document.getElementById("sea-condition-value");
   const detailEl = document.getElementById("sea-condition-detail");
   valueEl.textContent = scaleClassName(condIdx).toUpperCase();
@@ -944,11 +940,7 @@ async function main() {
       staleEl.hidden = true;
     }
 
-    if (escalaAtiva) {
-      buildSeaCondition(f);
-    } else {
-      document.getElementById("status-strip").removeAttribute("data-scale-class");
-    }
+    if (escalaAtiva) buildSeaCondition(f);
   }
 
   select.addEventListener("change", () => render(select.value));

@@ -1,5 +1,5 @@
 """Testes sinteticos da logica de alertas (secao 7 do pedido), sem
-depender de credenciais reais do Supabase/Resend/Twilio - usa um
+depender de credenciais reais do Supabase/Resend - usa um
 Supabase falso em memoria e verifica so a maquina de estados/regras de
 disparo. Rodar com: python pipeline/test_alerts.py
 """
@@ -80,7 +80,7 @@ def alerted_classes(sb):
 def with_default_subscriber(sb):
     sb.subscribers.append({
         "id": "padrao", "place_id": PLACE, "ativo": True, "nivel": "grande_extrema",
-        "canal_email": True, "canal_sms": False, "email": "padrao@example.com", "telefone": None,
+        "canal_email": True, "email": "padrao@example.com",
     })
     return sb
 
@@ -122,9 +122,9 @@ check("5b. novo evento Grande dispara de novo apos ter voltado a Normal",
 sb3 = FakeSupabase()
 sb3.subscribers = [
     {"id": "u1", "place_id": PLACE, "ativo": True, "nivel": "grande_extrema",
-     "canal_email": True, "canal_sms": False, "email": "amplo@example.com", "telefone": None},
+     "canal_email": True, "email": "amplo@example.com"},
     {"id": "u2", "place_id": PLACE, "ativo": True, "nivel": "extrema",
-     "canal_email": True, "canal_sms": False, "email": "so_extrema@example.com", "telefone": None},
+     "canal_email": True, "email": "so_extrema@example.com"},
 ]
 alerts.process_place(sb3, PLACE, LABEL, [entry(*GRANDE)], MODEL_RUN)
 emails_notificados = {r["subscriber_id"] for r in sb3.sent_alerts}
@@ -145,13 +145,10 @@ lower_body = body.lower()
 check("8. mensagem nao usa termos de aviso oficial",
       not any(w in lower_body for w in alerts.FORBIDDEN_WORDS))
 
-# sem RESEND_API_KEY/Twilio no ambiente de teste -> deve retornar False, sem lancar excecao
+# sem RESEND_API_KEY no ambiente de teste -> deve retornar False, sem lancar excecao
 os.environ.pop("RESEND_API_KEY", None)
-os.environ.pop("TWILIO_ACCOUNT_SID", None)
 ok_email = alerts.send_email(subject, body, "teste@example.com")
-ok_sms = alerts.send_sms(body, "+5581999999999")
 check("9. send_email sem credenciais retorna False sem lancar excecao", ok_email is False)
-check("9. send_sms sem credenciais retorna False sem lancar excecao", ok_sms is False)
 
 # --- classificacao pura (limiares) ----------------------------------------
 check("limiares Hs: 1.74 e Normal, 1.75 e Grande, 2.15 e Extrema",
@@ -167,5 +164,5 @@ if failures:
     sys.exit(1)
 else:
     print(f"Todos os {total_checks} testes sinteticos passaram.")
-    print("Pendente de credenciais reais: cadastro->Supabase, envio real de e-mail (Resend) e SMS (Twilio), "
+    print("Pendente de credenciais reais: cadastro->Supabase, envio real de e-mail (Resend), "
           "e o fluxo de descadastro via RPC do Postgres (nao coberto aqui por depender de um projeto Supabase real).")
