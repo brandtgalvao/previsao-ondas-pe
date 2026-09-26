@@ -160,9 +160,15 @@ def build(max_hours: int):
 
     places_out = {}
     for place_id, place in PLACES.items():
-        gp = GRID_POINTS[place["grid_point"]]
-        dist = haversine_km(place["lat"], place["lon"], gp["lat"], gp["lon"])
-        places_out[place_id] = {**place, "grid_distance_km": round(dist, 1)}
+        gp_c = GRID_POINTS[place["grid_point_costeira"]]
+        gp_o = GRID_POINTS[place["grid_point_oceanica"]]
+        dist_c = haversine_km(place["lat"], place["lon"], gp_c["lat"], gp_c["lon"])
+        dist_o = haversine_km(place["lat"], place["lon"], gp_o["lat"], gp_o["lon"])
+        places_out[place_id] = {
+            **place,
+            "grid_distance_km_costeira": round(dist_c, 1),
+            "grid_distance_km_oceanica": round(dist_o, 1),
+        }
 
     model_run = str(wave_run)
     output = {

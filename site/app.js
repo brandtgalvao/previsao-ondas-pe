@@ -840,6 +840,7 @@ let currentWaveMode = "combined";
 let currentEPMode = "power";
 let currentTempMode = "water";
 let currentTideMode = "graph";
+let currentPointMode = "costeira";
 
 let escalaAtiva = false;
 try { escalaAtiva = localStorage.getItem("escalaAtiva") === "1"; } catch (e) { /* storage indisponivel */ }
@@ -872,7 +873,8 @@ async function main() {
 
   function render(placeId) {
     const place = data.places[placeId];
-    const gp = data.grid_points[place.grid_point];
+    const gpId = currentPointMode === "oceanica" ? place.grid_point_oceanica : place.grid_point_costeira;
+    const gp = data.grid_points[gpId];
     const forecast = gp.forecast;
 
     const summaryHost = document.getElementById("summary-card");
@@ -923,7 +925,8 @@ async function main() {
       ? `Tábua de maré (Ref.: ${st.name}, ${st.lon.toFixed(2)} ${st.lat.toFixed(2)})`
       : "Tábua de maré";
 
-    const distTxt = place.grid_distance_km != null ? ` · ~${place.grid_distance_km} km da costa` : "";
+    const distKey = currentPointMode === "oceanica" ? "grid_distance_km_oceanica" : "grid_distance_km_costeira";
+    const distTxt = place[distKey] != null ? ` · ~${place[distKey]} km da costa` : "";
     document.getElementById("grid-info").textContent =
       `Ponto de grade mais próximo: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)${distTxt} · Previsão em ponto oceânico do ECMWF; não representa diretamente a arrebentação na praia.`;
 
@@ -978,6 +981,7 @@ async function main() {
   wireTabs("ep-tabs", (m) => { currentEPMode = m; });
   wireTabs("temp-tabs", (m) => { currentTempMode = m; });
   wireTabs("tide-tabs", (m) => { currentTideMode = m; });
+  wireTabs("point-mode-tabs", (m) => { currentPointMode = m; });
 
   render(select.value);
 }

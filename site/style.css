@@ -99,6 +99,10 @@ header.hero {
   font-size: 0.85rem;
 }
 
+.point-mode-tabs {
+  padding: 0;
+}
+
 select {
   background: var(--bg-panel);
   color: var(--text);

@@ -277,7 +277,7 @@ def run_alerts(places_out: dict, points_out: dict, model_run: str) -> None:
     try:
         sb = SupabaseClient(url, service_key)
         for place_id, place in places_out.items():
-            gp = points_out[place["grid_point"]]
+            gp = points_out[place["grid_point_costeira"]]
             process_place(sb, place_id, place["label"], gp["forecast"], model_run)
         print("Alertas: verificacao concluida.")
     except Exception as e:  # noqa: BLE001 - alertas nao podem derrubar o pipeline
