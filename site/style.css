@@ -27,16 +27,16 @@ body {
 /* Cabecalho / hero */
 header.hero {
   position: relative;
-  min-height: 420px;
+  min-height: 580px;
   display: flex;
   align-items: flex-end;
   padding: 40px 24px 32px;
   border-bottom: 2px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(10, 26, 40, 0.55) 0%, rgba(10, 26, 40, 0.88) 75%, rgba(10, 26, 40, 0.97) 100%),
+    linear-gradient(180deg, rgba(10, 26, 40, 0.32) 0%, rgba(10, 26, 40, 0.72) 70%, rgba(10, 26, 40, 0.92) 100%),
     url("img/hero-litoral-pe.jpg");
   background-size: cover;
-  background-position: center 35%;
+  background-position: center 87%;
   overflow: hidden;
 }
 
@@ -72,7 +72,7 @@ header.hero {
 }
 
 @media (max-width: 480px) {
-  header.hero { min-height: 320px; padding: 28px 20px 24px; background-position: center 25%; }
+  header.hero { min-height: 360px; padding: 28px 20px 24px; background-position: center 38%; }
   .hero-title { font-size: 1.65rem; }
 }
 
