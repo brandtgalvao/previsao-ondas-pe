@@ -823,12 +823,15 @@ function buildWeekStrip(forecast) {
     const items = byDay[dk];
     const minHs = Math.min(...items.map((f) => f.hs_m));
     const maxHs = Math.max(...items.map((f) => f.hs_m));
+    const minTp = Math.min(...items.map((f) => f.tp_s));
+    const maxTp = Math.max(...items.map((f) => f.tp_s));
     const midEntry = items[Math.floor(items.length / 2)];
     const day = document.createElement("div");
     day.className = "week-day";
     day.innerHTML = `
       <div class="wd-label">${dayLabel(dk)}</div>
       <div class="wd-range">${minHs.toFixed(1)}-${maxHs.toFixed(1)}m</div>
+      <div class="wd-period">${minTp.toFixed(1)}-${maxTp.toFixed(1)}s</div>
       <div class="wd-arrow" style="transform:rotate(${midEntry.dir_deg + 180}deg)">↑</div>
       <div class="dir-label">${degToCompass(midEntry.dir_deg)}</div>`;
     wrap.appendChild(day);

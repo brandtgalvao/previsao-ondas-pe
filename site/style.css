@@ -130,6 +130,7 @@ main {
 
 .chart-scroll {
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .chart {
@@ -361,13 +362,9 @@ footer summary {
 
 .summary-stats-row {
   padding: 14px 16px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 18px;
-}
-
-.summary-stat {
-  min-width: 90px;
 }
 
 .summary-stat .stat-label {
@@ -416,6 +413,12 @@ footer summary {
   font-size: 0.8rem;
   color: var(--accent-strong);
   margin-top: 6px;
+}
+
+.week-day .wd-period {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 2px;
 }
 
 .week-day .wd-arrow {
