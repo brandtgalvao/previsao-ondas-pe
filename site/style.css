@@ -391,40 +391,42 @@ footer summary {
 .week-panel { margin: 0 24px; }
 
 #week-strip {
-  display: flex;
-  min-width: max-content;
+  display: grid;
+  grid-auto-flow: column;
 }
 
 .week-day {
-  width: 92px;
-  flex: 0 0 auto;
   text-align: center;
-  padding: 12px 6px;
+  padding: 16px 10px;
   border-right: 1px solid rgba(255,255,255,0.05);
 }
 
 .week-day .wd-label {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text);
 }
 
 .week-day .wd-range {
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
   color: var(--accent-strong);
+  margin-top: 8px;
+}
+
+.week-day .wd-sub {
+  font-size: 0.8rem;
+  color: var(--accent);
   margin-top: 6px;
 }
 
-.week-day .wd-period {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  margin-top: 2px;
-}
-
 .week-day .wd-arrow {
-  font-size: 1rem;
+  display: inline-block;
+  font-size: 0.85rem;
   color: var(--accent);
-  margin-top: 4px;
+  margin-right: 2px;
+  vertical-align: middle;
 }
 
 /* Escala de Ondas em Pernambuco */

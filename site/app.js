@@ -809,7 +809,7 @@ function buildSummaryCard(place, gp) {
   return wrap;
 }
 
-function buildWeekStrip(forecast) {
+function buildWeekStrip(forecast, host) {
   const byDay = {};
   const order = [];
   for (const f of forecast) {
@@ -817,6 +817,7 @@ function buildWeekStrip(forecast) {
     if (!byDay[dk]) { byDay[dk] = []; order.push(dk); }
     byDay[dk].push(f);
   }
+  host.style.gridTemplateColumns = `repeat(${order.length}, minmax(140px, 1fr))`;
   const wrap = document.createElement("div");
   wrap.style.display = "contents";
   for (const dk of order) {
@@ -831,9 +832,7 @@ function buildWeekStrip(forecast) {
     day.innerHTML = `
       <div class="wd-label">${dayLabel(dk)}</div>
       <div class="wd-range">${minHs.toFixed(1)}-${maxHs.toFixed(1)}m</div>
-      <div class="wd-period">${minTp.toFixed(1)}-${maxTp.toFixed(1)}s</div>
-      <div class="wd-arrow" style="transform:rotate(${midEntry.dir_deg + 180}deg)">↑</div>
-      <div class="dir-label">${degToCompass(midEntry.dir_deg)}</div>`;
+      <div class="wd-sub"><span class="wd-arrow" style="transform:rotate(${midEntry.dir_deg + 180}deg)">↑</span>${minTp.toFixed(1)}-${maxTp.toFixed(1)}s · ${degToCompass(midEntry.dir_deg)}</div>`;
     wrap.appendChild(day);
   }
   return wrap;
@@ -886,7 +885,7 @@ async function main() {
 
     const weekHost = document.getElementById("week-strip");
     weekHost.innerHTML = "";
-    weekHost.appendChild(buildWeekStrip(forecast));
+    weekHost.appendChild(buildWeekStrip(forecast, weekHost));
 
     const waveDayLabels = document.getElementById("wave-day-labels");
     const waveChartHost = document.getElementById("wave-chart");
