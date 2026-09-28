@@ -33,7 +33,7 @@ header.hero {
   padding: 40px 24px 32px;
   border-bottom: 2px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(10, 26, 40, 0.32) 0%, rgba(10, 26, 40, 0.72) 70%, rgba(10, 26, 40, 0.92) 100%),
+    linear-gradient(180deg, rgba(10, 26, 40, 0.18) 0%, rgba(10, 26, 40, 0.50) 70%, rgba(10, 26, 40, 0.70) 100%),
     url("img/hero-litoral-pe.jpg");
   background-size: cover;
   background-position: center 35%;
@@ -72,7 +72,15 @@ header.hero {
 }
 
 @media (max-width: 480px) {
-  header.hero { min-height: 360px; padding: 28px 20px 24px; background-position: 85% 38%; }
+  header.hero {
+    min-height: 360px;
+    padding: 28px 20px 24px;
+    background:
+      linear-gradient(180deg, rgba(10, 26, 40, 0.32) 0%, rgba(10, 26, 40, 0.72) 70%, rgba(10, 26, 40, 0.92) 100%),
+      url("img/hero-litoral-pe.jpg");
+    background-size: cover;
+    background-position: 85% 38%;
+  }
   .hero-title { font-size: 1.65rem; }
 }
 
