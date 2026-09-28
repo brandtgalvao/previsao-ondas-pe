@@ -974,9 +974,27 @@ async function main() {
     escalaAtiva = !escalaAtiva;
     try { localStorage.setItem("escalaAtiva", escalaAtiva ? "1" : "0"); } catch (e) { /* storage indisponivel */ }
     updateScaleToggleUI();
+    if (escalaAtiva) {
+      const alertsPanel = document.getElementById("alerts-panel");
+      const alertsBtn = document.getElementById("alerts-toggle-btn");
+      if (alertsPanel && !alertsPanel.hidden) {
+        alertsPanel.hidden = true;
+        if (alertsBtn) alertsBtn.classList.remove("active");
+      }
+    }
     render(select.value);
   });
   updateScaleToggleUI();
+
+  const aboutToggleBtn = document.getElementById("about-toggle-btn");
+  const aboutBody = document.getElementById("about-body");
+  if (aboutToggleBtn && aboutBody) {
+    aboutToggleBtn.addEventListener("click", () => {
+      aboutBody.hidden = !aboutBody.hidden;
+      aboutToggleBtn.textContent = aboutBody.hidden ? "Sobre" : "Ocultar";
+      aboutToggleBtn.classList.toggle("active", !aboutBody.hidden);
+    });
+  }
 
   function wireTabs(containerId, setter) {
     document.querySelectorAll(`#${containerId} .tab-btn`).forEach((btn) => {

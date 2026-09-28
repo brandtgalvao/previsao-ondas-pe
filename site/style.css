@@ -438,7 +438,9 @@ footer summary {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  flex-wrap: wrap;
   gap: 12px;
+  row-gap: 8px;
 }
 
 .scale-toggle-btn {
@@ -552,12 +554,25 @@ footer summary {
   font-size: 0.78rem;
 }
 
-/* Alertas de ondas (cadastro) */
-.alerts-toggle-row {
-  padding: 0 24px 16px;
+/* Sobre / Saiba mais */
+.about-panel { margin: 0 24px; }
+
+.about-body {
+  padding: 12px 16px 16px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
 }
 
-.alerts-panel { margin: 0 24px 20px; }
+.about-body > p:first-child { margin-top: 0; }
+
+.about-credit {
+  margin-top: 12px;
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+/* Alertas de ondas (cadastro) */
+.alerts-panel { margin: 0 24px; }
 
 .alerts-body {
   padding: 12px 16px 16px;

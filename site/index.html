@@ -23,7 +23,7 @@
 </header>
 
 <div class="place-select-row">
-  <label for="place-select">Praia / município:</label>
+  <label for="place-select">Município:</label>
   <select id="place-select"></select>
   <div class="tabs point-mode-tabs" id="point-mode-tabs">
     <button class="tab-btn active" data-mode="costeira">Costeira</button>
@@ -32,51 +32,56 @@
 </div>
 <div class="meta-row" id="grid-info"></div>
 
-<div class="alerts-toggle-row">
-  <button id="alerts-toggle-btn" class="scale-toggle-btn" type="button">🔔 Receber alertas de ondas</button>
-</div>
-
-<section class="panel alerts-panel" id="alerts-panel" hidden>
-  <div class="panel-title">Receber alertas de ondas</div>
-  <div class="alerts-body">
+<section class="panel about-panel" id="about-panel">
+  <div class="panel-title panel-title-flex">
+    <span>Saiba mais</span>
+    <button id="about-toggle-btn" class="scale-toggle-btn" type="button">Sobre</button>
+  </div>
+  <div class="about-body" id="about-body" hidden>
     <p>
-      Cadastre-se para receber um aviso quando a previsão atingir as classes
-      <b>Grande</b> ou <b>Extrema</b> da Escala de Ondas em Pernambuco
-      (referência P2/ERA5), na praia que você escolher. Piloto de pesquisa
-      acadêmica — seus dados são usados exclusivamente para este fim.
+      O Mar de Ondas nasceu no âmbito do doutorado em Oceanografia do
+      pesquisador Daniel Brandt Galvão, realizado na Universidade Federal de
+      Pernambuco (UFPE). A tese caracterizou e aprofundou cientificamente o
+      conhecimento sobre o clima de ondas na costa de Pernambuco, integrando
+      observações in situ e mais de oito décadas de dados de reanálise. Como
+      desdobramento aplicado desse trabalho, parte do conhecimento produzido
+      foi materializada em uma ferramenta pública e de uso contínuo. Esta
+      plataforma é essa aplicação: aproxima a caracterização construída na
+      tese de uma ferramenta de acesso aberto, voltada a apoiar decisões e
+      atividades relacionadas ao mar.
     </p>
-    <form id="alerts-form" class="alerts-form">
-      <label class="alerts-field">
-        Nome
-        <input type="text" name="nome" required>
-      </label>
-
-      <label class="alerts-field">
-        Praia/município de interesse
-        <select name="place_id" id="alerts-place-select" required></select>
-      </label>
-
-      <fieldset class="alerts-fieldset">
-        <legend>Nível desejado</legend>
-        <label class="alerts-radio"><input type="radio" name="nivel" value="grande_extrema" checked> Ondas Grandes e Extremas</label>
-        <label class="alerts-radio"><input type="radio" name="nivel" value="extrema"> Apenas Ondas Extremas</label>
-      </fieldset>
-
-      <label class="alerts-field">
-        E-mail
-        <input type="email" name="email" placeholder="seu@email.com" required>
-      </label>
-
-      <label class="alerts-consent">
-        <input type="checkbox" name="consentimento" required>
-        Concordo em receber alertas de previsão de ondas e autorizo o uso dos
-        dados informados exclusivamente para essa finalidade.
-      </label>
-
-      <button type="submit" class="alerts-submit-btn">Cadastrar</button>
-      <div class="alerts-msg" id="alerts-msg" hidden></div>
-    </form>
-    <p class="alerts-note">Você pode cancelar a qualquer momento pelo link enviado em cada alerta.</p>
+    <p>
+      Seu objetivo é contribuir para a segurança da navegação, para o
+      planejamento de operações portuárias e para diferentes atividades
+      náuticas, como surfe, mergulho, pesca, vela, entre outras. A proposta
+      é tornar as informações sobre condições e previsões de ondas mais
+      claras e acessíveis, dos profissionais que dependem desses dados ao
+      público em geral, favorecendo uma interpretação mais clara da relação
+      entre o que a previsão indica e o que se pode esperar no mar.
+    </p>
+    <p>
+      Mais do que apresentar valores de altura, período e direção das ondas,
+      a plataforma busca ajudar a interpretar o que esses valores
+      representam em relação ao comportamento esperado do mar. Para isso,
+      reúne previsões do ECMWF, cálculos de energia e potência das ondas e a
+      Escala de Ondas em Pernambuco, desenvolvida a partir da climatologia
+      histórica analisada na tese.
+    </p>
+    <p>
+      O Mar de Ondas tem caráter acadêmico e informativo. As previsões
+      representam condições em pontos de grade do modelo e não reproduzem
+      diretamente as condições locais de cada praia. A plataforma deve ser
+      utilizada como ferramenta complementar e não substitui avisos
+      oficiais, cartas náuticas, procedimentos de segurança ou avaliações
+      locais. Como toda iniciativa de pesquisa aplicada, o Mar de Ondas
+      permanece aberto ao aprimoramento contínuo. Sugestões, críticas e
+      contribuições são bem-vindas e podem ser encaminhadas pelos contatos
+      indicados nesta página.
+    </p>
+    <p class="about-credit">
+      Desenvolvimento: Daniel Brandt Galvão, Programa de Pós-Graduação em
+      Oceanografia, Universidade Federal de Pernambuco (UFPE).
+    </p>
   </div>
 </section>
 
@@ -84,6 +89,7 @@
   <div class="panel-title panel-title-flex">
     <span>Condição atual</span>
     <button id="scale-toggle-btn" class="scale-toggle-btn" type="button">Mostrar escala</button>
+    <button id="alerts-toggle-btn" class="scale-toggle-btn" type="button">Receber alertas</button>
   </div>
   <div class="summary-updated" id="summary-updated"></div>
   <div class="stale-warning" id="stale-warning" hidden></div>
@@ -120,6 +126,50 @@
         município.
       </p>
     </details>
+  </div>
+</section>
+
+<section class="panel alerts-panel" id="alerts-panel" hidden>
+  <div class="panel-title">Receber alertas de ondas</div>
+  <div class="alerts-body">
+    <p>
+      Cadastre-se para receber um aviso quando a previsão atingir as classes
+      <b>Grande</b> ou <b>Extrema</b> da Escala de Ondas em Pernambuco
+      (referência P2/ERA5), na praia que você escolher. Piloto de pesquisa
+      acadêmica — seus dados são usados exclusivamente para este fim.
+    </p>
+    <form id="alerts-form" class="alerts-form">
+      <label class="alerts-field">
+        Nome
+        <input type="text" name="nome" required>
+      </label>
+
+      <label class="alerts-field">
+        Município de interesse
+        <select name="place_id" id="alerts-place-select" required></select>
+      </label>
+
+      <fieldset class="alerts-fieldset">
+        <legend>Nível desejado</legend>
+        <label class="alerts-radio"><input type="radio" name="nivel" value="grande_extrema" checked> Ondas Grandes e Extremas</label>
+        <label class="alerts-radio"><input type="radio" name="nivel" value="extrema"> Apenas Ondas Extremas</label>
+      </fieldset>
+
+      <label class="alerts-field">
+        E-mail
+        <input type="email" name="email" placeholder="seu@email.com" required>
+      </label>
+
+      <label class="alerts-consent">
+        <input type="checkbox" name="consentimento" required>
+        Concordo em receber alertas de previsão de ondas e autorizo o uso dos
+        dados informados exclusivamente para essa finalidade.
+      </label>
+
+      <button type="submit" class="alerts-submit-btn">Cadastrar</button>
+      <div class="alerts-msg" id="alerts-msg" hidden></div>
+    </form>
+    <p class="alerts-note">Você pode cancelar a qualquer momento pelo link enviado em cada alerta.</p>
   </div>
 </section>
 
