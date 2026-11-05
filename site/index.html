@@ -32,6 +32,21 @@
 </div>
 <div class="meta-row" id="grid-info"></div>
 
+<aside class="use-notice" id="use-notice" role="note" aria-label="Aviso de uso">
+  <p>
+    <strong>Aviso de uso.</strong> O Mar de Ondas é uma ferramenta acadêmica e
+    informativa, resultante de pesquisa de doutorado. As previsões representam
+    condições em pontos de grade de um modelo numérico global e não reproduzem a
+    transformação das ondas sobre a plataforma rasa, a arrebentação em cada
+    praia nem particularidades locais de abrigo, recifes, batimetria e
+    correntes. A plataforma não substitui observações locais, avisos oficiais
+    da Marinha do Brasil nem orientação das autoridades competentes, e não deve
+    ser usada como base única para decisões de segurança da navegação ou de
+    operação.
+  </p>
+  <button id="use-notice-dismiss" class="scale-toggle-btn" type="button">Entendi</button>
+</aside>
+
 <section class="panel about-panel" id="about-panel">
   <div class="panel-title panel-title-flex">
     <span>Saiba mais</span>
@@ -63,20 +78,26 @@
       Mais do que apresentar valores de altura, período e direção das ondas,
       a plataforma busca ajudar a interpretar o que esses valores
       representam em relação ao comportamento esperado do mar. Para isso,
-      reúne previsões do ECMWF, cálculos de energia e potência das ondas e a
+      reúne previsões do ECMWF, cálculos de potência e energia das ondas e a
       Escala de Ondas em Pernambuco, desenvolvida a partir da climatologia
       histórica analisada na tese.
     </p>
     <p>
-      O Mar de Ondas tem caráter acadêmico e informativo. As previsões
-      representam condições em pontos de grade do modelo e não reproduzem
-      diretamente as condições locais de cada praia. A plataforma deve ser
-      utilizada como ferramenta complementar e não substitui avisos
-      oficiais, cartas náuticas, procedimentos de segurança ou avaliações
-      locais. Como toda iniciativa de pesquisa aplicada, o Mar de Ondas
-      permanece aberto ao aprimoramento contínuo. Sugestões, críticas e
-      contribuições são bem-vindas e podem ser encaminhadas pelos contatos
-      indicados nesta página.
+      <strong>Aviso de uso.</strong> O Mar de Ondas é uma ferramenta acadêmica e
+      informativa, resultante de pesquisa de doutorado. As previsões representam
+      condições em pontos de grade de um modelo numérico global e não reproduzem a
+      transformação das ondas sobre a plataforma rasa, a arrebentação em cada
+      praia nem particularidades locais de abrigo, recifes, batimetria e
+      correntes. A plataforma não substitui observações locais, avisos oficiais
+      da Marinha do Brasil nem orientação das autoridades competentes, e não deve
+      ser usada como base única para decisões de segurança da navegação ou de
+      operação.
+    </p>
+    <p>
+      Como toda iniciativa de pesquisa aplicada, o Mar de Ondas permanece aberto
+      ao aprimoramento contínuo. Sugestões, críticas e contribuições são
+      bem-vindas e podem ser encaminhadas pelo contato indicado no rodapé desta
+      página.
     </p>
     <p class="about-credit">
       Desenvolvimento: Daniel Brandt Galvão, Programa de Pós-Graduação em
@@ -113,17 +134,36 @@
     <details class="scale-details">
       <summary>Saiba mais</summary>
       <p>
-        As classes são definidas por percentis da série histórica: "Muito baixa"
-        fica abaixo do percentil 5 (P5); "Baixa" entre P5 e P25; "Normal" entre
-        P25 e P75 (os 50% centrais da distribuição — não significa
-        necessariamente mar calmo ou condição segura); "Grande" entre P75 e
-        P95; e "Extrema" a partir do percentil 95 (P95) — ou seja, entre os 5%
-        maiores registros históricos da referência utilizada, o que não
-        significa, isoladamente, tempestade, risco ou período de retorno.
-        A escala foi calibrada com dados do ponto offshore P2/ERA5 e pode ser
-        aplicada às previsões dos diferentes pontos do site, mas os limites
-        não representam percentis históricos específicos de cada praia ou
-        município.
+        <strong>Como a escala funciona.</strong> As classes são percentílicas,
+        calculadas sobre a distribuição histórica de referência, o ponto offshore
+        P2 da reanálise ERA5 entre 1940 e 2025. Por construção, cada classe tem
+        frequência esperada fixa: Muito baixa e Extrema ocorrem em 5% do tempo
+        cada, Baixa e Grande em 20% cada, e Normal em 50%.
+      </p>
+      <p>
+        <strong>O que Extrema significa.</strong> A classe indica que a condição
+        está entre os 5% maiores do histórico de referência, o que corresponde a
+        cerca de 18 dias por ano. Não equivale a tempestade, evento extremo
+        independente nem nível de retorno.
+      </p>
+      <p>
+        <strong>Referência offshore e grandezas distintas.</strong> As classes
+        situam a condição prevista em relação ao regime de mar aberto do ponto de
+        referência, e não em relação à distribuição de cada praia. Altura e
+        potência são classificadas cada uma contra a sua própria distribuição, de
+        modo que um mesmo horário pode aparecer, por exemplo, como Grande em
+        altura e Extrema em potência, porque a potência depende também do período
+        das ondas.
+      </p>
+      <p>
+        <strong>Classe geral.</strong> A classe em destaque no bloco
+        "Classificação das ondas" é a maior entre a de altura e a de potência. A
+        energia não entra nesse critério, por ser derivada diretamente do
+        quadrado da altura.
+      </p>
+      <p>
+        A classe Normal corresponde aos 50% centrais da distribuição e não
+        significa necessariamente mar calmo ou condição segura.
       </p>
     </details>
   </div>
@@ -135,7 +175,7 @@
     <p>
       Cadastre-se para receber um aviso quando a previsão atingir as classes
       <b>Grande</b> ou <b>Extrema</b> da Escala de Ondas em Pernambuco
-      (referência P2/ERA5), na praia que você escolher. Piloto de pesquisa
+      (referência P2/ERA5), no município que você escolher. Piloto de pesquisa
       acadêmica — seus dados são usados exclusivamente para este fim.
     </p>
     <form id="alerts-form" class="alerts-form">
@@ -160,10 +200,25 @@
         <input type="email" name="email" placeholder="seu@email.com" required>
       </label>
 
+      <div class="use-notice use-notice-inline" role="note">
+        <p>
+          <strong>Aviso de uso.</strong> O Mar de Ondas é uma ferramenta acadêmica e
+          informativa, resultante de pesquisa de doutorado. As previsões representam
+          condições em pontos de grade de um modelo numérico global e não reproduzem a
+          transformação das ondas sobre a plataforma rasa, a arrebentação em cada
+          praia nem particularidades locais de abrigo, recifes, batimetria e
+          correntes. A plataforma não substitui observações locais, avisos oficiais
+          da Marinha do Brasil nem orientação das autoridades competentes, e não deve
+          ser usada como base única para decisões de segurança da navegação ou de
+          operação.
+        </p>
+      </div>
+
       <label class="alerts-consent">
         <input type="checkbox" name="consentimento" required>
-        Concordo em receber alertas de previsão de ondas e autorizo o uso dos
-        dados informados exclusivamente para essa finalidade.
+        Concordo em receber alertas de previsão de ondas, declaro ter lido o aviso
+        de uso acima e autorizo o uso dos dados informados exclusivamente para essa
+        finalidade.
       </label>
 
       <button type="submit" class="alerts-submit-btn">Cadastrar</button>
@@ -248,7 +303,8 @@
       A energia das ondas (densidade de energia por área de mar) é estimada por
       E ≈ 628 × Hs² (J/m²), teoria linear em águas profundas. A potência das ondas
       (fluxo de energia por metro de crista) usa a própria fórmula oficial do ECMWF
-      (Bidlot, 2020, <em>Ocean wave model output parameters</em>):
+      (ECMWF. <em>IFS Documentation CY47R1, Part VII: ECMWF wave model</em>. Reading:
+      ECMWF, 2020. DOI: <a href="https://doi.org/10.21957/31drbygag" target="_blank" rel="noopener">10.21957/31drbygag</a>):
       P = (ρg²/64π) × Tm₋₁ × Hs² ≈ 0,49 × Hs² × Tm₋₁ (kW/m), onde Tm₋₁ é o "mwp"
       (mean wave period) do próprio modelo — o período de energia, não uma aproximação.
     </p>
@@ -273,7 +329,7 @@
       (célula de mar mais próxima).
     </p>
   </details>
-  <p class="credit">Piloto desenvolvido por Daniel Brandt Galvão, contato: daniel.brandt@ufpe.br</p>
+  <p class="credit">Piloto de pesquisa acadêmica desenvolvido no âmbito do Programa de Pós-Graduação em Oceanografia da Universidade Federal de Pernambuco (UFPE). Desenvolvido por Daniel Brandt Galvão. Contato: daniel.brandt@ufpe.br</p>
 </footer>
 
 <div id="app"></div>

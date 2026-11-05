@@ -98,8 +98,8 @@ function applyScaleToBar(bar, classIdx, baseTitle) {
 
 function buildScaleTable() {
   const { hs_m, energy_kj_m2, power_kw_m } = WAVE_SCALE_THRESHOLDS;
-  function rangeLabel(thresholds, idx, unit, decimals) {
-    const fmt = (v) => v.toFixed(decimals).replace(".", ",");
+  function rangeLabel(thresholds, idx, unit, decimals, factor = 1) {
+    const fmt = (v) => (v * factor).toLocaleString("pt-BR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     if (idx === 0) return `< ${fmt(thresholds[0])} ${unit}`;
     if (idx === 4) return `≥ ${fmt(thresholds[3])} ${unit}`;
     return `${fmt(thresholds[idx - 1])} – ${fmt(thresholds[idx])} ${unit}`;
@@ -107,7 +107,7 @@ function buildScaleTable() {
   const table = document.createElement("table");
   table.className = "scale-table";
   const thead = document.createElement("tr");
-  ["Classe", "Altura (Hs)", "Energia", "Potência"].forEach((h) => {
+  ["Classe", "Altura (Hs)", "Potência", "Energia"].forEach((h) => {
     const th = document.createElement("th");
     th.textContent = h;
     thead.appendChild(th);
@@ -120,8 +120,8 @@ function buildScaleTable() {
     tr.appendChild(tdName);
     [
       rangeLabel(hs_m, idx, "m", 2),
-      rangeLabel(energy_kj_m2, idx, "kJ/m²", 3),
       rangeLabel(power_kw_m, idx, "kW/m", 2),
+      rangeLabel(energy_kj_m2, idx, "J/m²", 0, 1000),
     ].forEach((txt) => {
       const td = document.createElement("td");
       td.textContent = txt;
@@ -145,8 +145,8 @@ function buildSeaCondition(f) {
   // "Normal" etc ao lado de cada variavel aqui.
   detailEl.innerHTML = `
     <span>Hs: ${f.hs_m.toFixed(2)} m</span>
-    <span>Energia: ${f.energy_j_m2.toFixed(0)} J/m²</span>
     <span>Potência: ${f.power_kw_m.toFixed(1)} kW/m</span>
+    <span>Energia: ${f.energy_j_m2.toFixed(0)} J/m²</span>
   `;
 }
 
@@ -939,7 +939,7 @@ async function main() {
     const distKey = currentPointMode === "oceanica" ? "grid_distance_km_oceanica" : "grid_distance_km_costeira";
     const distTxt = place[distKey] != null ? ` · ~${place[distKey]} km da costa` : "";
     document.getElementById("grid-info").textContent =
-      `Ponto de grade mais próximo: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)${distTxt} · Previsão em ponto oceânico do ECMWF; não representa diretamente a arrebentação na praia.`;
+      `Ponto de grade mais próximo: ${gp.grid_lat}, ${gp.grid_lon} (ECMWF Open Data, 0,25°)${distTxt} · Previsão em ponto de grade do modelo ECMWF; não representa diretamente a arrebentação na praia.`;
 
     const f = closestForecastEntry(forecast);
     document.getElementById("summary-updated").textContent =
@@ -1014,5 +1014,18 @@ async function main() {
 
   render(select.value);
 }
+
+(function initUseNotice() {
+  const notice = document.getElementById("use-notice");
+  const btn = document.getElementById("use-notice-dismiss");
+  if (!notice || !btn) return;
+  try {
+    if (sessionStorage.getItem("avisoUsoDispensado") === "1") notice.hidden = true;
+  } catch (e) { /* storage indisponivel: o aviso permanece visivel */ }
+  btn.addEventListener("click", () => {
+    notice.hidden = true;
+    try { sessionStorage.setItem("avisoUsoDispensado", "1"); } catch (e) { /* storage indisponivel */ }
+  });
+})();
 
 main();
