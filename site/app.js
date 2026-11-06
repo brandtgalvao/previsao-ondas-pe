@@ -962,12 +962,11 @@ async function main() {
   document.getElementById("scale-table-host").appendChild(buildScaleTable());
 
   const scaleToggleBtn = document.getElementById("scale-toggle-btn");
-  const scaleInfoPanel = document.getElementById("scale-info-panel");
   const seaConditionEl = document.getElementById("sea-condition");
   function updateScaleToggleUI() {
-    scaleToggleBtn.textContent = escalaAtiva ? "Ocultar escala" : "Mostrar escala";
+    scaleToggleBtn.textContent = escalaAtiva ? "Ocultar escala" : "Ver escala";
     scaleToggleBtn.classList.toggle("active", escalaAtiva);
-    scaleInfoPanel.hidden = !escalaAtiva;
+    scaleToggleBtn.setAttribute("aria-expanded", String(escalaAtiva));
     seaConditionEl.hidden = !escalaAtiva;
   }
   scaleToggleBtn.addEventListener("click", () => {
@@ -975,26 +974,13 @@ async function main() {
     try { localStorage.setItem("escalaAtiva", escalaAtiva ? "1" : "0"); } catch (e) { /* storage indisponivel */ }
     updateScaleToggleUI();
     if (escalaAtiva) {
-      const alertsPanel = document.getElementById("alerts-panel");
-      const alertsBtn = document.getElementById("alerts-toggle-btn");
-      if (alertsPanel && !alertsPanel.hidden) {
-        alertsPanel.hidden = true;
-        if (alertsBtn) alertsBtn.classList.remove("active");
-      }
+      openInfo("escala", { reveal: true, focus: true });
+    } else if (currentInfoKey() === "escala") {
+      closeInfo();
     }
     render(select.value);
   });
   updateScaleToggleUI();
-
-  const aboutToggleBtn = document.getElementById("about-toggle-btn");
-  const aboutBody = document.getElementById("about-body");
-  if (aboutToggleBtn && aboutBody) {
-    aboutToggleBtn.addEventListener("click", () => {
-      aboutBody.hidden = !aboutBody.hidden;
-      aboutToggleBtn.textContent = aboutBody.hidden ? "Sobre" : "Ocultar";
-      aboutToggleBtn.classList.toggle("active", !aboutBody.hidden);
-    });
-  }
 
   function wireTabs(containerId, setter) {
     document.querySelectorAll(`#${containerId} .tab-btn`).forEach((btn) => {
@@ -1015,16 +1001,65 @@ async function main() {
   render(select.value);
 }
 
-(function initUseNotice() {
-  const notice = document.getElementById("use-notice");
-  const btn = document.getElementById("use-notice-dismiss");
-  if (!notice || !btn) return;
-  try {
-    if (sessionStorage.getItem("avisoUsoDispensado") === "1") notice.hidden = true;
-  } catch (e) { /* storage indisponivel: o aviso permanece visivel */ }
-  btn.addEventListener("click", () => {
-    notice.hidden = true;
-    try { sessionStorage.setItem("avisoUsoDispensado", "1"); } catch (e) { /* storage indisponivel */ }
+// Painel informativo (Sobre / Escala de ondas / Dados e fontes): so um
+// conteudo aberto por vez; clicar de novo no botao selecionado fecha.
+const INFO_KEYS = ["sobre", "escala", "dados"];
+
+function currentInfoKey() {
+  return INFO_KEYS.find((k) => !document.getElementById(`info-${k}`).hidden) || null;
+}
+
+function setInfo(key) {
+  INFO_KEYS.forEach((k) => {
+    const open = k === key;
+    document.getElementById(`info-${k}`).hidden = !open;
+    const btn = document.getElementById(`info-btn-${k}`);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.classList.toggle("active", open);
+  });
+  if (key !== "sobre") document.getElementById("aviso-return").hidden = true;
+}
+
+function closeInfo() { setInfo(null); }
+
+function scrollToEl(el, block) {
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: block || "start" });
+}
+
+function openInfo(key, { reveal = false, focus = false } = {}) {
+  setInfo(key);
+  if (reveal) scrollToEl(document.getElementById("info-panel"), "start");
+  if (focus) document.getElementById(`info-${key}`).focus({ preventScroll: true });
+}
+
+(function initInfoPanel() {
+  INFO_KEYS.forEach((k) => {
+    const btn = document.getElementById(`info-btn-${k}`);
+    btn.addEventListener("click", () => {
+      if (currentInfoKey() === k) closeInfo(); else setInfo(k);
+    });
+  });
+
+  // "Ler aviso de uso" (formulario de alertas) abre Sobre na secao do aviso;
+  // o formulario nao e fechado nem recarregado, e ha retorno com foco.
+  const link = document.getElementById("open-aviso-link");
+  const ret = document.getElementById("aviso-return");
+  const retBtn = document.getElementById("aviso-return-btn");
+  link.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    setInfo("sobre");
+    ret.hidden = false;
+    const aviso = document.getElementById("aviso-uso");
+    scrollToEl(aviso, "start");
+    aviso.focus({ preventScroll: true });
+  });
+  retBtn.addEventListener("click", () => {
+    ret.hidden = true;
+    const panel = document.getElementById("alerts-panel");
+    if (panel.hidden) document.getElementById("alerts-toggle-btn").click();
+    scrollToEl(document.getElementById("alerts-form"), "center");
+    link.focus({ preventScroll: true });
   });
 })();
 

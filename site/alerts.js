@@ -91,19 +91,7 @@
     toggleBtn.addEventListener("click", () => {
       panel.hidden = !panel.hidden;
       toggleBtn.classList.toggle("active", !panel.hidden);
-      if (!panel.hidden) {
-        const scaleInfoPanel = document.getElementById("scale-info-panel");
-        const seaConditionEl = document.getElementById("sea-condition");
-        const scaleBtn = document.getElementById("scale-toggle-btn");
-        if (scaleInfoPanel) scaleInfoPanel.hidden = true;
-        if (seaConditionEl) seaConditionEl.hidden = true;
-        if (scaleBtn) {
-          scaleBtn.classList.remove("active");
-          scaleBtn.textContent = "Mostrar escala";
-        }
-        escalaAtiva = false;
-        try { localStorage.setItem("escalaAtiva", "0"); } catch (e) { /* storage indisponivel */ }
-      }
+      toggleBtn.setAttribute("aria-expanded", String(!panel.hidden));
     });
 
     form.addEventListener("submit", (ev) => {
